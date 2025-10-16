@@ -5,3 +5,9 @@ python-dotenv
 duckdb
 pandas
 google-generativeai
+psycopg2-binary
+SqlAlchemy
+openpyxl
+PyMySQL
+boto3
+s3fs
