@@ -5,6 +5,8 @@ import { useConnectionStore } from "@/lib/stores/connectionStore";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import AIMessage from "@/components/chat/AIMessage";
+import AILoading from "@/components/chat/AILoading";
+import { Database } from "lucide-react";
 
 export default function ChatInterface() {
   const { selectedConnection } = useConnectionStore();
@@ -45,20 +47,12 @@ export default function ChatInterface() {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [messages, loading]);
 
   return (
     <div className="flex flex-col h-full w-full max-w-3xl">
-      <div className="flex-shrink-0 p-4 border-b">
-        {selectedConnection ? (
-          <div className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-sm text-neutral-700 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-200">
-            <span className="font-medium">Active Source:</span>
-            <span>{selectedConnection.name}</span>
-          </div>
-        ) : null}
-      </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto px-4 pb-4 pt-32 space-y-4 scroll-pt-32">
         {messages.length === 0 ? (
           <p className="text-sm text-neutral-500">Type a question below to begin.</p>
         ) : (
@@ -69,17 +63,29 @@ export default function ChatInterface() {
                   {m.content}
                 </div>
               ) : (
-                <div className="inline-block max-w-[100%] rounded-lg bg-white p-3 text-sm shadow dark:bg-neutral-900">
+                <div className="w-full">
                   <AIMessage content={m.content} />
                 </div>
               )}
             </div>
           ))
         )}
+        {loading && (
+          <div className="w-full">
+            <AILoading />
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="flex-shrink-0 border-t p-4">
+      <div className="flex-shrink-0 p-4 border-t">
+        <div className="mb-2">
+          <div className="inline-flex items-center gap-2 rounded-full bg-neutral-100 px-3 py-1 text-sm text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">
+            <span className={`inline-block h-2 w-2 rounded-full ${selectedConnection ? 'bg-green-500' : 'bg-neutral-400'}`} />
+            <Database className="h-4 w-4" />
+            <span>{selectedConnection ? selectedConnection.name : 'No source selected'}</span>
+          </div>
+        </div>
         <form onSubmit={onSubmit} className="flex gap-2">
           <Input
             value={question}

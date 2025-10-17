@@ -21,7 +21,7 @@ export default function AIMessage({ content }) {
   }
 
   return (
-    <div className="rounded-md border border-neutral-200 p-4 dark:border-neutral-800 h-[60vh] max-h-[80vh] flex flex-col gap-4">
+    <div className="w-full rounded-md border border-neutral-200 p-4 dark:border-neutral-800 max-h-[60vh] overflow-auto">
       <div className="flex-none">
         <Accordion type="multiple" defaultValue={["details"]}>
           {(explanation || sql) ? (
@@ -54,7 +54,7 @@ export default function AIMessage({ content }) {
         </Accordion>
       </div>
 
-      <div className="flex-1 overflow-auto">
+      <div>
         {data && data.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="min-w-full text-left text-sm">

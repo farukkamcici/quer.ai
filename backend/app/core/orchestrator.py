@@ -77,7 +77,6 @@ def process_query(request: QueryRequest) -> QueryResponse:
 
         #Build the final schema for the LLM
         db_schema = _build_focused_schema_from_parts(list(schema_parts))
-        print(db_schema)
 
         #Send the schema and question to the LLM
         sql_query, explanation = gemini_service.generate_sql_and_explanation(request.question, db_schema)

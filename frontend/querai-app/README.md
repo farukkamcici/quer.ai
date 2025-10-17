@@ -1,36 +1,159 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Quer.ai Frontend (Next.js App Router)
 
-## Getting Started
+Production‑ready Next.js 15 App Router application for Quer.ai with protected auth, glassmorphism UI, connection management, and a sticky chat interface powered by Supabase and a Python backend.
 
-First, run the development server:
+## Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Next.js App Router (15.x), React 19
+- Tailwind CSS 4 for utility styling
+- shadcn/ui (Radix primitives + custom wrappers) for UI components
+- Supabase (auth + client/server helpers)
+- Zustand for lightweight global state
+- Sonner for toast notifications
+- lucide-react icon set
+
+## Features
+
+- Protected routes with server-side auth check (redirects unauthenticated users to `/login`).
+- Login/Sign Up pages using Supabase (`signInWithPassword`, `signUp`).
+- User profile dropdown with secure server action logout.
+- Data Connections sidebar:
+  - Add/Edit using shadcn Form + react-hook-form + zod validation.
+  - Delete with a shadcn Dialog confirmation.
+  - Collapsible layout, icon-only mode when collapsed.
+  - Selected item toggle and green active border.
+- Sticky, fixed layout: browser doesn’t scroll; only chat and sidebar list scroll internally.
+- Chat interface:
+  - Sticky input bar; message history auto-scrolls to newest message.
+  - AI message cards are full-width with internal max-height + scroll.
+  - “Details” accordion for explanation + SQL (Copy button), data table below.
+  - Playful rotating loading states while waiting for backend.
+- API proxy route (`/api/query`) forwards to Python backend (keeps backend URL private, avoids CORS).
+- Glassmorphism design for the header and sidebar (blue‑white tint, blur, rounded, depth).
+
+## Project Structure
+
+```
+querai-app/
+├─ app/
+│  ├─ api/
+│  │  └─ query/route.js           # Proxy to Python backend
+│  ├─ actions/
+│  │  ├─ auth.js                  # signOut server action
+│  │  └─ connections.js           # add/update/delete connection actions
+│  ├─ login/page.jsx              # Login UI + Supabase
+│  ├─ signup/page.jsx             # Sign up UI + Supabase
+│  ├─ layout.js                   # Root layout with Toaster
+│  └─ page.js                     # Protected home, layout + ChatInterface
+│
+├─ components/
+│  ├─ auth/
+│  │  └─ UserProfile.jsx          # Avatar dropdown + logout form
+│  ├─ chat/
+│  │  ├─ AIMessage.jsx            # AI response card (accordion, SQL, table)
+│  │  ├─ AILoading.jsx            # Animated “thinking” placeholder
+│  │  └─ ChatInterface.jsx        # Sticky input, scrollable history
+│  ├─ connections/
+│  │  ├─ AddConnectionButton.jsx  # Form dialog (zod + RHF)
+│  │  └─ ConnectionList.jsx       # List + edit/delete + collapsed mode
+│  ├─ layout/
+│  │  └─ Sidebar.jsx              # Glass sidebar (header/content/footer)
+│  └─ ui/                         # shadcn-style wrappers
+│     ├─ avatar.jsx
+│     ├─ button.jsx
+│     ├─ card.jsx
+│     ├─ dialog.jsx
+│     ├─ form.jsx
+│     ├─ input.jsx
+│     ├─ label.jsx
+│     └─ select.jsx
+│
+├─ lib/
+│  ├─ supabase_client.js          # Browser client (createBrowserClient)
+│  ├─ supabase/server.js          # Server client (cookies + SSR)
+│  ├─ stores/connectionStore.js   # Zustand store: selectedConnection
+│  └─ utils.js                    # cn() helper
+│
+├─ public/                        # Static assets
+├─ README.md                      # This file
+└─ package.json
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Pages & Routing
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- `/login` and `/signup`: client components with shadcn Card/Input/Label/Button. Use Supabase auth, show errors inline; redirect to `/` on success.
+- `/` (home): server component. Checks `supabase.auth.getUser()` and redirects to `/login` if unauthenticated. Renders:
+  - Sticky glass header with app title (left) and user avatar menu (right).
+  - Glass sidebar (left) with collapsible layout and connection list.
+  - ChatInterface (right) filling remaining space.
+- `/api/query` (POST): Next.js route handler that forwards the request body to the Python backend at `PYTHON_BACKEND_URL/api/query`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Data Flow & Workflows
 
-## Learn More
+- Authentication
+  - Client pages call `supabase.auth.*` using `lib/supabase_client.js`.
+  - Server pages/actions use `lib/supabase/server.js` to read cookies.
+  - Logout uses a server action and a form post (no client secrets).
 
-To learn more about Next.js, take a look at the following resources:
+- Connections CRUD
+  - addConnection / updateConnection / deleteConnection are server actions returning `{ success, error? }`.
+  - Client components show toasts via Sonner and call `router.refresh()` on success.
+  - Add/Edit uses react-hook-form + zod; DB credentials are stringified as `db_details`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Chat
+  - User selects a connection (Zustand `selectedConnection`) and submits a question.
+  - Client POSTs to `/api/query` with `{ question, connection_id }` (or full connection if preferred).
+  - While waiting: show `<AILoading />` with rotating witty states.
+  - On response: render `<AIMessage />` with:
+    - Accordion (“Details”) for explanation + SQL (Copy icon)
+    - Data table (simple HTML table) if rows are present
+  - Messages area auto-scrolls to the bottom on updates.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## UI System
 
-## Deploy on Vercel
+- shadcn-style wrappers (Radix under the hood) for Button, Dialog, Form, Select, Avatar, etc.
+- Tailwind 4 for utilities; glassmorphism (blur, alpha, ring, gradient) for header + sidebar.
+- Collapsed sidebar:
+  - Icon-only tiles (square) for connections.
+  - Edge-centered glass pill toggle handle.
+  - Footer hosts the “Add Connection” trigger (icon in collapsed mode).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Environment Variables
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `PYTHON_BACKEND_URL` (e.g., `http://localhost:8000`)
+
+Create an `.env.local` at project root:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+PYTHON_BACKEND_URL=http://localhost:8000
+```
+
+## Scripts
+
+- `npm run dev` – start dev server (Turbopack)
+- `npm run build` – production build
+- `npm run start` – start production server
+- `npm run lint` – run ESLint
+
+## Conventions
+
+- Server actions return `{ success, error? }`; UI components show toasts and call `router.refresh()`.
+- Avoid browser scrolling; page is fixed height (`h-screen`). Only chat history and the connection list scroll.
+- Prefer shadcn wrappers for consistency; Radix primitives sit underneath.
+- Keep forms typed with zod + RHF; keep UI accessible (labels, `aria-pressed` on toggle buttons, etc.).
+
+## Troubleshooting
+
+- Dropdowns not opening: ensure our dropdown wrapper renders `children` and that the Portal isn’t clipped; header/sidebar use `z-20+`.
+- Messages hidden under header: adjust ChatInterface top padding + `scroll-pt` to match header height.
+- CORS/backend issues: verify `PYTHON_BACKEND_URL` and that `/api/query` forwards correctly.
+
+## Roadmap (nice‑to‑have)
+
+- Streaming responses (SSE) for incremental AI answers.
+- Persist sidebar collapsed state and last selected connection.
+- Theming token pass for the glass palette.

@@ -34,7 +34,9 @@ export const DropdownMenuSubContent = React.forwardRef(function DropdownMenuSubC
         className
       )}
       {...props}
-    />
+    >
+      {props.children}
+    </DropdownMenuPrimitive.SubContent>
   )
 })
 
@@ -49,7 +51,9 @@ export const DropdownMenuContent = React.forwardRef(function DropdownMenuContent
           className
         )}
         {...props}
-      />
+      >
+        {props.children}
+      </DropdownMenuPrimitive.Content>
     </DropdownMenuPrimitive.Portal>
   )
 })
