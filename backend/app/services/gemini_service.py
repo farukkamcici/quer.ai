@@ -8,7 +8,7 @@ model = genai.GenerativeModel('gemini-2.5-flash')
 
 def generate_sql_and_explanation(question: str, db_schema: str) -> tuple[str, str]:
     """
-    Uses Gemini to generate a SQL query and a user-friendly explanation
+    Uses Gemini to generate a SQL query and a user friendly explanation
     based on a dynamic database schema.
     """
     prompt = f"""

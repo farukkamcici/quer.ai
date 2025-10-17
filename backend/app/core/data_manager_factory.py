@@ -18,16 +18,13 @@ def create_data_manager(source: DataSource) -> DataSourceManager:
         details = source.db_details
 
         if source_type == 'postgresql':
-            # Driver: psycopg2 (psycopg2-binary ile kuruldu)
             uri = f"postgresql+psycopg2://{details.username}:{details.password}@{details.host}:{details.port}/{details.database}"
 
         elif source_type == 'mysql':
-            # Driver: pymysql (PyMySQL ile kuruldu)
             uri = f"mysql+pymysql://{details.username}:{details.password}@{details.host}:{details.port}/{details.database}"
 
         elif source_type == 'sqlite':
-            # SQLite için sadece dosya yolu yeterli
-            uri = f"sqlite:///{details.database}"  # 'database' alanı dosya yolunu tutacak
+            uri = f"sqlite:///{details.database}"
 
         engine = create_engine(uri)
         return SQLAlchemyManager(engine)

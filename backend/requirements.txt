@@ -11,3 +11,5 @@ openpyxl
 PyMySQL
 boto3
 s3fs
+sentence-transformers
+faiss-cpu
