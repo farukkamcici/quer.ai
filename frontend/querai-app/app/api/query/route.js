@@ -20,7 +20,7 @@ export async function POST(req) {
     // 3. Securely fetch the connection details from Supabase on the server
     const { data: connection, error: connError } = await supabase
       .from('connections')
-      .select('source_type, db_details')
+      .select('source_type, db_details, s3_uri')
       .eq('id', connection_id)
       .eq('user_id', user.id) // Ensure the user owns this connection
       .single();
@@ -30,11 +30,26 @@ export async function POST(req) {
     }
 
     // 4. Construct the full data_source object for the Python backend
-    const dataSource = {
-      source_type: connection.source_type,
-      // db_details from Supabase is a string, so we need to parse it
-      db_details: JSON.parse(connection.db_details),
-    };
+    let dataSource;
+    const isDb = connection.source_type === 'PostgreSQL' || connection.source_type === 'MySQL';
+    const isFile = connection.source_type === 'CSV' || connection.source_type === 'Excel';
+
+    if (isDb) {
+      let parsed = {};
+      try { parsed = JSON.parse(connection.db_details || '{}'); } catch { parsed = {}; }
+      dataSource = {
+        source_type: connection.source_type,
+        db_details: parsed,
+      };
+    } else if (isFile) {
+      dataSource = {
+        source_type: connection.source_type,
+        file_path: connection.s3_uri,
+      };
+    } else {
+      // Fallback: pass through what we have
+      dataSource = { source_type: connection.source_type };
+    }
 
     // 5. Forward the complete request to the Python backend
     const backendUrl = `${process.env.PYTHON_BACKEND_URL}/api/query`;

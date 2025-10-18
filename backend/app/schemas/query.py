@@ -13,7 +13,7 @@ class DBDetails(BaseModel):
 
 class DataSource(BaseModel):
     """Defines the source of the data to be queried."""
-    source_type: str = Field(..., description="e.g., 'postgresql', 'mysql', 'sqlite', 'csv', 'excel'")
+    source_type: str = Field(..., description="e.g., 'postgresql', 'mysql', 'csv', 'excel'")
 
     db_details: Optional[DBDetails] = None
 

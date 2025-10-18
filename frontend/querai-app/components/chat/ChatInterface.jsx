@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import AIMessage from "@/components/chat/AIMessage";
 import AILoading from "@/components/chat/AILoading";
-import { Database } from "lucide-react";
+import { Database, FileSpreadsheet } from "lucide-react";
 
 export default function ChatInterface() {
   const { selectedConnection } = useConnectionStore();
@@ -82,7 +82,11 @@ export default function ChatInterface() {
         <div className="mb-2">
           <div className="inline-flex items-center gap-2 rounded-full bg-neutral-100 px-3 py-1 text-sm text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">
             <span className={`inline-block h-2 w-2 rounded-full ${selectedConnection ? 'bg-green-500' : 'bg-neutral-400'}`} />
-            <Database className="h-4 w-4" />
+            {selectedConnection && (["CSV", "Excel"].includes(selectedConnection.source_type)) ? (
+              <FileSpreadsheet className="h-4 w-4" />
+            ) : (
+              <Database className="h-4 w-4" />
+            )}
             <span>{selectedConnection ? selectedConnection.name : 'No source selected'}</span>
           </div>
         </div>

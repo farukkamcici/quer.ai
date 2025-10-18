@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useConnectionStore } from "@/lib/stores/connectionStore";
 import AddConnectionButton from "@/components/connections/AddConnectionButton";
 import { deleteConnection } from "@/app/actions/connections";
-import { Database, Pencil, Trash2 } from "lucide-react";
+import { Database, FileSpreadsheet, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import {
@@ -59,7 +59,11 @@ export default function ConnectionList({ connections = [], isCollapsed = false }
                 aria-pressed={isActive}
                 title={`${c.name} • ${c.source_type}`}
               >
-                <Database className={`h-4 w-4 ${isActive ? 'text-green-600 dark:text-green-400' : 'text-neutral-500'}`} />
+                {(["CSV", "Excel"].includes(c.source_type)) ? (
+                  <FileSpreadsheet className={`h-4 w-4 ${isActive ? 'text-green-600 dark:text-green-400' : 'text-neutral-500'}`} />
+                ) : (
+                  <Database className={`h-4 w-4 ${isActive ? 'text-green-600 dark:text-green-400' : 'text-neutral-500'}`} />
+                )}
               </button>
             </li>
           )
@@ -79,7 +83,11 @@ export default function ConnectionList({ connections = [], isCollapsed = false }
                 className="flex flex-1 items-start gap-2 text-left cursor-pointer"
                 aria-pressed={isActive}
               >
-                <Database className={`mt-0.5 h-4 w-4 ${isActive ? 'text-green-600 dark:text-green-400' : 'text-neutral-500'}`} />
+                {(["CSV", "Excel"].includes(c.source_type)) ? (
+                  <FileSpreadsheet className={`mt-0.5 h-4 w-4 ${isActive ? 'text-green-600 dark:text-green-400' : 'text-neutral-500'}`} />
+                ) : (
+                  <Database className={`mt-0.5 h-4 w-4 ${isActive ? 'text-green-600 dark:text-green-400' : 'text-neutral-500'}`} />
+                )}
                 <div>
                   <div className="font-medium">{c.name}</div>
                   <div className="text-neutral-500">{c.source_type}</div>
