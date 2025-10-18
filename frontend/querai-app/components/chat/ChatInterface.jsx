@@ -90,14 +90,15 @@ export default function ChatInterface() {
             <span>{selectedConnection ? selectedConnection.name : 'No source selected'}</span>
           </div>
         </div>
-        <form onSubmit={onSubmit} className="flex gap-2">
+        <form onSubmit={onSubmit} className="flex items-center gap-3">
           <Input
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             placeholder={selectedConnection ? "Ask a question about your data..." : "Select a data source to chat"}
             disabled={!selectedConnection || loading}
+            className="h-12 px-4 py-2 text-base md:text-base"
           />
-          <Button type="submit" disabled={!selectedConnection || loading} className="w-24 justify-center">
+          <Button type="submit" size="lg" disabled={!selectedConnection || loading} className="h-12 w-28 justify-center px-6 text-base">
             {loading ? "Sending..." : "Send"}
           </Button>
         </form>
