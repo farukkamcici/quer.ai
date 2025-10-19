@@ -7,6 +7,7 @@ import Hero from "@/components/Hero";
 import Features from "@/components/Features";
 import Footer from "@/components/Footer";
 import AuthModal from "@/components/auth/AuthModal";
+import { Suspense } from "react";
 
 const plusJakarta = Plus_Jakarta_Sans({ subsets: ["latin"], display: "swap" });
 
@@ -23,7 +24,9 @@ export default function MarketingPage() {
       <Features />
       <Footer />
       {/* Auth modal overlays the marketing page when ?auth=login|signup */}
-      <AuthModal />
+      <Suspense fallback={null}>
+        <AuthModal />
+      </Suspense>
     </main>
   );
 }

@@ -56,6 +56,30 @@ frontend/querai-app/
   public/, README.md, package.json
 ```
 
+## Frontend UI & Design System
+
+- Tokens: Querai Design System v1 lives in `frontend/querai-app/app/globals.css` under `--qr-*` CSS variables (surface, border, text, subtle, primary, accent, hover, radius, shadows). App‑wide colors map to these tokens for both light/dark themes.
+- Core UI components: `components/ui/button.jsx`, `components/ui/input.jsx`, `components/ui/label.jsx`, `components/ui/dialog.jsx` consume tokens and handle focus/disabled states.
+- Pointer cursor: Global rule added in `globals.css` so `a`, `button`, and button‑like inputs show a pointer on hover across landing and auth.
+
+### Auth Modal UX Polish (Frontend)
+
+- Location: `components/auth/AuthModal.jsx`, `components/auth/LoginForm.jsx`, `components/auth/SignupForm.jsx`.
+- Container: Premium dark glass panel using `#0b1529`, subtle inner ring, backdrop blur, and soft radial halo; enter animation is a short fade + upward shift.
+- Inputs: Tokenized surfaces/borders with rounded `--qr-radius-md`, subtle inner inset shadow, focus glow ring; increased height for comfort. Placeholders use a single space (`placeholder=" "`) to enable floating labels reliably.
+- Floating labels: Always white; default position at `top-2.5` (13px). On focus/filled move to `-top-2` (≈-0.5rem) and `text-xs`, smooth ease.
+- Buttons: Gradient primary (`#2563EB → #7C3AED`) with gentle background‑position motion and light lift on hover.
+- Segmented toggle: Simpler, less dominant chip; transparent base with subtle border. Active has soft surface tint; passive gets a light hover fill. Final pass increased white contrast for clarity on dark background.
+- Divider: “OR” centered with thin white lines left/right for a clean, minimal look.
+
+Modified files for the polish:
+- `frontend/querai-app/components/auth/AuthModal.jsx`
+- `frontend/querai-app/components/auth/LoginForm.jsx`
+- `frontend/querai-app/components/auth/SignupForm.jsx`
+- `frontend/querai-app/components/ui/input.jsx`
+- `frontend/querai-app/components/ui/button.jsx`
+- `frontend/querai-app/app/globals.css`
+
 ## API (Backend)
 
 - `GET /` → `{ "status": "Querai API is running." }`
