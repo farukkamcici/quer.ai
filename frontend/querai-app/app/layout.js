@@ -16,9 +16,9 @@ export const metadata = {
   title: "Querai",
   description: "Querai is an explainable natural language data analytics platform that transforms user questions into secure, transparent SQL queries and interactive visual insights.",
   icons: {
-    icon: "/icon.png",
-    shortcut: "/icon.png",
-    apple: "/icon.png",
+    icon: "/icon-light.svg",
+    shortcut: "/icon-light.svg",
+    apple: "/icon-light.svg",
   },
 };
 
@@ -33,8 +33,8 @@ export default function RootLayout({ children }) {
             (function(){
               try {
                 var saved = localStorage.getItem('theme');
-                var sys = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                var t = saved || sys;
+                // Default to dark when no explicit preference is saved
+                var t = saved || 'dark';
                 document.documentElement.setAttribute('data-theme', t);
                 if (t === 'dark') { document.documentElement.classList.add('dark'); } else { document.documentElement.classList.remove('dark'); }
               } catch(e){}

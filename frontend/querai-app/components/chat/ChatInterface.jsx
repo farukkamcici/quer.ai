@@ -207,9 +207,6 @@ export default function ChatInterface() {
       </div>
 
       <div className="flex-shrink-0 p-4 border-t border-[var(--qr-border)]">
-        <div className="text-xs text-muted-foreground px-2 pb-1">
-          Connected to: <span className="font-medium">{currentDataSourceName || 'None'}</span>
-        </div>
         <div className="mb-2">
           <div className="inline-flex items-center gap-2 rounded-full border border-[var(--qr-border)] bg-[var(--qr-surface)] px-3 py-1 text-sm text-[var(--qr-text)] shadow-[var(--qr-shadow-sm)] backdrop-blur">
             <span className={`inline-block h-2 w-2 rounded-full ${selectedConnection ? 'bg-green-500' : 'bg-neutral-400'}`} />

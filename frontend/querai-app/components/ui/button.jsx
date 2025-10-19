@@ -12,8 +12,8 @@ const buttonVariants = cva(
         // Unified brand: use qr-primary in both light/dark
         default: "bg-[var(--qr-primary)] text-[var(--primary-foreground)] hover:opacity-95 dark:hover:bg-[color:var(--qr-hover)]",
         primary: "bg-[var(--qr-primary)] text-[var(--primary-foreground)] hover:opacity-95 dark:hover:bg-[color:var(--qr-hover)]",
-        // Keep gradient available, but align hover to dark overlay
-        gradient: "bg-[var(--qr-primary)] text-[var(--primary-foreground)] hover:opacity-95 dark:hover:bg-[color:var(--qr-hover)]",
+        // Premium gradient button using brand hues (#2563EB → #7C3AED) with subtle motion
+        gradient: "text-white bg-[linear-gradient(90deg,#2563EB,#7C3AED)] bg-[length:200%_100%] bg-[position:0%_50%] transition-[transform,background-position,opacity] duration-300 ease-out hover:bg-[position:100%_50%] hover:-translate-y-px hover:scale-[1.02]",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:

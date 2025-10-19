@@ -6,6 +6,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import Hero from "@/components/Hero";
 import Features from "@/components/Features";
 import Footer from "@/components/Footer";
+import AuthModal from "@/components/auth/AuthModal";
 
 const plusJakarta = Plus_Jakarta_Sans({ subsets: ["latin"], display: "swap" });
 
@@ -17,10 +18,12 @@ export const metadata = {
 
 export default function MarketingPage() {
   return (
-    <main className={`${plusJakarta.className} bg-[#FAFAFA]`}> {/* Modern minimal background */}
+    <main className={`${plusJakarta.className} bg-[#0b1529]`}> {/* Dark navy oriented background */}
       <Hero />
       <Features />
       <Footer />
+      {/* Auth modal overlays the marketing page when ?auth=login|signup */}
+      <AuthModal />
     </main>
   );
 }

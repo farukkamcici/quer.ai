@@ -119,6 +119,15 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Ensure pointer cursor for all interactive elements (landing + auth) */
+  a,
+  button,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"] {
+    cursor: pointer;
+  }
 }
 
 
