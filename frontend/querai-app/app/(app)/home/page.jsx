@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Sidebar from '@/components/layout/Sidebar'
@@ -5,7 +6,8 @@ import ChatSidebar from '@/components/layout/ChatSidebar'
 import ChatInterface from '@/components/chat/ChatInterface'
 import UserProfile from '@/components/auth/UserProfile'
 
-export default async function HomePage() {
+// App home relocated under the (app) route group so the marketing page can live at '/'
+export default async function AppHomePage() {
   const supabase = createClient()
 
   const {
@@ -46,7 +48,10 @@ export default async function HomePage() {
               <div className="pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-b from-white/70 via-white/20 to-transparent opacity-70" />
               <div className="pointer-events-none absolute inset-px rounded-2xl ring-1 ring-white/50 dark:ring-white/10" />
               <div className="relative flex items-center justify-between">
-                <h1 className="text-left text-lg font-semibold tracking-wide text-sky-900/80 dark:text-sky-100/90">Querai</h1>
+                {/* Link the brand to the marketing homepage */}
+                <Link href="/" className="text-left text-lg font-semibold tracking-wide text-sky-900/80 hover:text-sky-900 dark:text-sky-100/90">
+                  Querai
+                </Link>
                 <UserProfile user={user} />
               </div>
             </div>

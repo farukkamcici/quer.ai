@@ -31,7 +31,7 @@ export default function LoginPage() {
         setError(signInError.message);
         return;
       }
-      router.replace("/");
+      router.replace("/home");
     } catch (err) {
       setError("Unexpected error. Please try again.");
     } finally {
