@@ -59,16 +59,16 @@ export default function ConnectionList({ connections = [], isCollapsed = false }
                 }}
                 className={`w-10 h-10 rounded border flex items-center justify-center cursor-pointer transition-colors ${
                   isActive
-                    ? 'border-green-500 bg-green-50 dark:border-green-400 dark:bg-green-900/30'
-                    : 'border-neutral-200 hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-900'
+                    ? 'border-green-500'
+                    : 'border-[var(--qr-border)] hover:bg-[color:var(--qr-hover)]'
                 }`}
                 aria-pressed={isActive}
                 title={`${c.name} • ${c.source_type}`}
               >
                 {(["CSV", "Excel"].includes(c.source_type)) ? (
-                  <FileSpreadsheet className={`h-4 w-4 ${isActive ? 'text-green-600 dark:text-green-400' : 'text-neutral-500'}`} />
+                  <FileSpreadsheet className={`h-4 w-4 ${isActive ? 'text-green-600 dark:text-green-400' : 'text-[color:var(--qr-subtle)]'}`} />
                 ) : (
-                  <Database className={`h-4 w-4 ${isActive ? 'text-green-600 dark:text-green-400' : 'text-neutral-500'}`} />
+                  <Database className={`h-4 w-4 ${isActive ? 'text-green-600 dark:text-green-400' : 'text-[color:var(--qr-subtle)]'}`} />
                 )}
               </button>
             </li>
@@ -79,8 +79,8 @@ export default function ConnectionList({ connections = [], isCollapsed = false }
             <div
               className={`flex w-full items-start justify-between rounded border p-3 text-left text-sm transition-colors ${
                 isActive
-                  ? 'border-green-500 bg-green-50 dark:border-green-400 dark:bg-green-900/30'
-                  : 'border-neutral-200 hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-900'
+                  ? 'border-green-500'
+                  : 'border-[var(--qr-border)] hover:bg-[color:var(--qr-hover)]'
               }`}
             >
               <button
@@ -94,20 +94,20 @@ export default function ConnectionList({ connections = [], isCollapsed = false }
                 aria-pressed={isActive}
               >
                 {(["CSV", "Excel"].includes(c.source_type)) ? (
-                  <FileSpreadsheet className={`mt-0.5 h-4 w-4 ${isActive ? 'text-green-600 dark:text-green-400' : 'text-neutral-500'}`} />
+                  <FileSpreadsheet className={`mt-0.5 h-4 w-4 ${isActive ? 'text-green-600 dark:text-green-400' : 'text-[color:var(--qr-subtle)]'}`} />
                 ) : (
-                  <Database className={`mt-0.5 h-4 w-4 ${isActive ? 'text-green-600 dark:text-green-400' : 'text-neutral-500'}`} />
+                  <Database className={`mt-0.5 h-4 w-4 ${isActive ? 'text-green-600 dark:text-green-400' : 'text-[color:var(--qr-subtle)]'}`} />
                 )}
                 <div>
                   <div className="font-medium">{c.name}</div>
-                  <div className="text-neutral-500">{c.source_type}</div>
+                  <div className="text-[color:var(--qr-subtle)]">{c.source_type}</div>
                 </div>
               </button>
               <div className="ml-2 flex items-center gap-1">
                 <AddConnectionButton connection={c}>
                   <button
                     type="button"
-                    className="rounded p-1 text-neutral-600 hover:bg-neutral-200 dark:text-neutral-300 dark:hover:bg-neutral-700 cursor-pointer"
+                    className="rounded p-1 text-[color:var(--qr-text)] hover:bg-[color:var(--qr-hover)] cursor-pointer"
                     title="Edit"
                   >
                     <Pencil className="h-4 w-4" />

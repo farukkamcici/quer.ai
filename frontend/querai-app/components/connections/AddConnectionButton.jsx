@@ -278,7 +278,10 @@ export default function AddConnectionButton({ connection = null, children = null
                         type="file"
                         accept=".csv,.xlsx,.xls"
                         onChange={(e) => field.onChange(e.target.files?.[0])}
-                        className="block w-full cursor-pointer rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm file:mr-3 file:cursor-pointer file:rounded file:border-0 file:bg-neutral-100 file:px-3 file:py-1.5 file:text-sm hover:file:bg-neutral-200 dark:border-neutral-800 dark:bg-neutral-900 dark:file:bg-neutral-800"
+                        className="block w-full cursor-pointer rounded-md border px-3 py-2 text-sm
+                          border-[var(--qr-border)] bg-[var(--qr-surface)] text-[var(--qr-text)]
+                          file:mr-3 file:cursor-pointer file:rounded file:border-0 file:px-3 file:py-1.5 file:text-sm
+                          file:bg-[color:var(--qr-primary)] file:text-[var(--primary-foreground)] hover:file:opacity-95"
                       />
                     </FormControl>
                     <FormDescription>

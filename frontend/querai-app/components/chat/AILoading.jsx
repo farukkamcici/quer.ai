@@ -48,12 +48,17 @@ export default function AILoading() {
   }, [idx]);
 
   return (
-    <div ref={containerRef} className="w-full rounded-md border border-neutral-200 bg-white p-4 text-sm shadow dark:border-neutral-800 dark:bg-neutral-900">
-      <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-200">
+    <div ref={containerRef} className="inline-flex max-w-[80%] flex-col rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 p-3 text-sm text-white shadow">
+      <div className="flex items-center gap-2">
         <Loader2 className="h-4 w-4 animate-spin" />
         <span className="font-medium">Thinking…</span>
+        <span className="ml-1 inline-flex items-center gap-1">
+          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-white/90 [animation-delay:-0.2s]" />
+          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-white/90" />
+          <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-white/90 [animation-delay:0.2s]" />
+        </span>
       </div>
-      <p className="mt-2 text-neutral-600 dark:text-neutral-300">{orderedSteps[idx % orderedSteps.length] || steps[idx]}</p>
+      <p className="mt-2 opacity-90">{orderedSteps[idx % orderedSteps.length] || steps[idx]}</p>
     </div>
   );
 }

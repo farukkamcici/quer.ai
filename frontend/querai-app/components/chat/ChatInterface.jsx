@@ -9,6 +9,7 @@ import { useChatStore } from "@/lib/stores/chatStore";
 import { useConnectionStore } from "@/lib/stores/connectionStore";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
+import { FadeIn } from "@/components/brand/Motion";
 
 export default function ChatInterface() {
   const { currentChatId, currentMessages, addMessage, setMessages, setChatId, currentDataSourceId } = useChatStore();
@@ -173,30 +174,28 @@ export default function ChatInterface() {
       <div className="flex-1 overflow-y-auto px-4 pb-4 pt-32 space-y-4 scroll-pt-32">
         {currentMessages.length > visibleMessages.length && (
           <div className="flex justify-center">
-            <button
-              type="button"
-              onClick={() => setVisibleCount((c) => c + 50)}
-              className="rounded border px-3 py-1 text-xs text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:border-neutral-800 dark:hover:bg-neutral-900"
-            >
+            <Button type="button" size="sm" variant="outline" onClick={() => setVisibleCount((c) => c + 50)}>
               Load older messages
-            </button>
+            </Button>
           </div>
         )}
         {visibleMessages.length === 0 ? (
           <p className="text-sm text-neutral-500">Start a new chat to begin.</p>
         ) : (
           visibleMessages.map((m, i) => (
-            <div key={i} className={m.role === "user" ? "text-right" : "text-left"}>
-              {m.role === "user" ? (
-                <div className="inline-block max-w-[80%] rounded-lg bg-blue-600 px-3 py-2 text-sm text-white dark:bg-blue-700">
-                  {m.content}
-                </div>
-              ) : (
-                <div className="w-full ai-fade">
-                  <AIMessage content={m.content} />
-                </div>
-              )}
-            </div>
+            <FadeIn key={i}>
+              <div className={m.role === "user" ? "text-right" : "text-left"}>
+                {m.role === "user" ? (
+                  <div className="inline-block max-w-[80%] rounded-xl border border-[var(--qr-border)] bg-[var(--qr-surface)] px-4 py-2 text-sm text-[var(--qr-text)] shadow-[var(--qr-shadow-sm)] backdrop-blur-md">
+                    {m.content}
+                  </div>
+                ) : (
+                  <div className="w-full">
+                    <AIMessage content={m.content} />
+                  </div>
+                )}
+              </div>
+            </FadeIn>
           ))
         )}
         {loading && (
@@ -207,12 +206,12 @@ export default function ChatInterface() {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="flex-shrink-0 p-4 border-t">
+      <div className="flex-shrink-0 p-4 border-t border-[var(--qr-border)]">
         <div className="text-xs text-muted-foreground px-2 pb-1">
           Connected to: <span className="font-medium">{currentDataSourceName || 'None'}</span>
         </div>
         <div className="mb-2">
-          <div className="inline-flex items-center gap-2 rounded-full bg-neutral-100 px-3 py-1 text-sm text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[var(--qr-border)] bg-[var(--qr-surface)] px-3 py-1 text-sm text-[var(--qr-text)] shadow-[var(--qr-shadow-sm)] backdrop-blur">
             <span className={`inline-block h-2 w-2 rounded-full ${selectedConnection ? 'bg-green-500' : 'bg-neutral-400'}`} />
             {selectedConnection && (["CSV", "Excel"].includes(selectedConnection.source_type)) ? (
               <FileSpreadsheet className="h-4 w-4" />
@@ -234,7 +233,7 @@ export default function ChatInterface() {
             }}
             placeholder={selectedConnection ? "Type a message..." : "Select a data source to chat"}
             disabled={!selectedConnection || loading || !currentChatId}
-            className="h-12 w-full resize-none rounded-md border px-4 py-2 text-base md:text-base disabled:opacity-60 outline-none bg-white/40 dark:bg-white/10 border-white/40 dark:border-white/10 backdrop-blur-md focus-visible:ring-2 focus-visible:ring-sky-300/60 focus-visible:border-sky-300/60"
+            className="h-12 w-full resize-none rounded-md border px-4 py-2 text-base md:text-base disabled:opacity-60 outline-none border-[var(--qr-border)] bg-[var(--qr-surface)] text-[var(--qr-text)] backdrop-blur-md focus-visible:ring-2 focus-visible:ring-blue-600/40"
           />
           <Button type="submit" size="lg" disabled={!selectedConnection || loading || !currentChatId} className="h-12 w-28 justify-center px-6 text-base">
             {loading ? (<span className="inline-flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Sending</span>) : "Send"}
@@ -245,14 +244,4 @@ export default function ChatInterface() {
   );
 }
 
-// Local fade-in animation for assistant messages
-// Scoped to this component via styled-jsx
-// Ensures no global CSS changes required
-/* eslint-disable @next/next/no-css-tags */
-<style jsx>{`
-  @keyframes aiFade {
-    from { opacity: 0; transform: translateY(2px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .ai-fade { animation: aiFade .28s ease-out both; }
-`}</style>
+// Motion handled by FadeIn component above

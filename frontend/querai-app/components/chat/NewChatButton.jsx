@@ -49,7 +49,7 @@ export default function NewChatButton({ compact = false }) {
         onClick={createNewChat}
         disabled={loading}
         title="New Chat"
-        className="inline-flex size-8 items-center justify-center rounded-md border border-white/40 bg-white/30 text-neutral-800 shadow-sm hover:bg-white/40 disabled:opacity-60 dark:border-white/10 dark:bg-white/10 dark:text-neutral-100"
+        className="inline-flex size-8 items-center justify-center rounded-md border border-[var(--qr-border)] bg-[var(--qr-surface)] text-[var(--qr-text)] shadow-[var(--qr-shadow-sm)] hover:bg-[color:var(--qr-hover)] disabled:opacity-60"
       >
         <Plus className="h-4 w-4" />
       </button>

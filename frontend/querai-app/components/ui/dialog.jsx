@@ -38,7 +38,9 @@ export const DialogContent = React.forwardRef(function DialogContent(
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          "fixed left-1/2 top-1/2 z-50 grid w-full max-w-md -translate-x-1/2 -translate-y-1/2 gap-4 border border-neutral-200 bg-white p-6 shadow-lg duration-200 dark:border-neutral-800 dark:bg-neutral-900",
+          // Popup surface: white in light mode, navy in dark mode
+          "fixed left-1/2 top-1/2 z-50 grid w-full max-w-md -translate-x-1/2 -translate-y-1/2 gap-4 border p-6 duration-200",
+          "border-[var(--qr-border)] bg-white text-neutral-900 shadow-[var(--qr-shadow-lg)] dark:bg-[#0b1529] dark:text-[color:var(--qr-text)]",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           className
         )}
@@ -88,9 +90,8 @@ export const DialogDescription = React.forwardRef(function DialogDescription(
   return (
     <DialogPrimitive.Description
       ref={ref}
-      className={cn("text-sm text-neutral-500", className)}
+      className={cn("text-sm text-neutral-600", className)}
       {...props}
     />
   )
 })
-

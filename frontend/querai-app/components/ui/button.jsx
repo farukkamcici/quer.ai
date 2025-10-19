@@ -9,15 +9,19 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        // Unified brand: use qr-primary in both light/dark
+        default: "bg-[var(--qr-primary)] text-[var(--primary-foreground)] hover:opacity-95 dark:hover:bg-[color:var(--qr-hover)]",
+        primary: "bg-[var(--qr-primary)] text-[var(--primary-foreground)] hover:opacity-95 dark:hover:bg-[color:var(--qr-hover)]",
+        // Keep gradient available, but align hover to dark overlay
+        gradient: "bg-[var(--qr-primary)] text-[var(--primary-foreground)] hover:opacity-95 dark:hover:bg-[color:var(--qr-hover)]",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
+          "border border-[var(--qr-border)] bg-[var(--qr-surface)] text-[var(--qr-text)] shadow-xs hover:bg-[color:var(--qr-hover)]",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "bg-[var(--qr-primary)] text-[var(--primary-foreground)] hover:opacity-95 dark:hover:bg-[color:var(--qr-hover)]",
         ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+          "text-[var(--qr-text)] hover:bg-[color:var(--qr-hover)]",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

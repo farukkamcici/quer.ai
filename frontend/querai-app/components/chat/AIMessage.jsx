@@ -21,7 +21,7 @@ export default function AIMessage({ content }) {
   }
 
   return (
-    <div className="w-full rounded-md border border-neutral-200 p-4 dark:border-neutral-800 max-h-[60vh] overflow-auto">
+    <div className="w-full rounded-xl border border-[var(--qr-border)] bg-[var(--qr-surface)] p-4 shadow-[var(--qr-shadow-sm)] backdrop-blur-md max-h-[60vh] overflow-auto">
       <div className="flex-none">
         <Accordion type="multiple" defaultValue={["details"]}>
           {(explanation || sql) ? (
@@ -29,7 +29,7 @@ export default function AIMessage({ content }) {
               <AccordionTrigger>Explanation</AccordionTrigger>
               <AccordionContent>
                 {explanation ? (
-                  <p className="mb-3 text-sm leading-relaxed text-neutral-800 dark:text-neutral-200">{explanation}</p>
+                  <p className="mb-3 text-sm leading-relaxed text-[var(--qr-text)]/90">{explanation}</p>
                 ) : null}
                 {sql ? (
                   <div>
@@ -45,7 +45,7 @@ export default function AIMessage({ content }) {
                         {copied ? <CheckIcon className="h-4 w-4" /> : <CopyIcon className="h-4 w-4" />}
                       </Button>
                     </div>
-                    <pre className="overflow-auto rounded bg-neutral-900 p-3 text-xs text-neutral-100"><code>{sql}</code></pre>
+                    <pre className="overflow-auto rounded-md bg-[#111827] p-3 text-xs text-[#E5E7EB] font-mono"><code>{sql}</code></pre>
                   </div>
                 ) : null}
               </AccordionContent>
@@ -61,7 +61,7 @@ export default function AIMessage({ content }) {
               <thead>
                 <tr>
                   {Object.keys(data[0] || {}).map((k) => (
-                    <th key={k} className="border-b border-neutral-200 px-3 py-2 font-medium dark:border-neutral-800">
+                    <th key={k} className="border-b border-[var(--qr-border)] px-3 py-2 font-medium">
                       {k}
                     </th>
                   ))}
@@ -69,7 +69,7 @@ export default function AIMessage({ content }) {
               </thead>
               <tbody>
                 {data.map((row, i) => (
-                  <tr key={i} className="odd:bg-neutral-50 dark:odd:bg-neutral-900/50">
+                  <tr key={i} className="odd:bg-white/50">
                     {Object.keys(data[0] || {}).map((k) => (
                       <td key={k} className="px-3 py-2 align-top">
                         {String(row[k])}

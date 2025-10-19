@@ -102,11 +102,11 @@ export default function ChatList({ isCollapsed = false }) {
                 onClick={() => selectChat(c.id)}
                 className={`w-10 h-10 rounded border flex items-center justify-center cursor-pointer transition-colors ${
                   active
-                    ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/30'
-                    : 'border-neutral-200 hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-900'
+                    ? 'border-[var(--qr-primary)] bg-[color:var(--qr-primary)]/10 dark:bg-[color:var(--qr-primary)]/20'
+                    : 'border-[var(--qr-border)] hover:bg-[color:var(--qr-hover)]'
                 }`}
               >
-                <MessageSquare className={`h-4 w-4 ${active ? 'text-blue-600 dark:text-blue-400' : 'text-neutral-500'}`} />
+                <MessageSquare className={`h-4 w-4 ${active ? 'text-[color:var(--qr-primary)] dark:text-[color:var(--qr-primary)]' : 'text-[color:var(--qr-subtle)]'}`} />
               </button>
             </li>
           );
@@ -135,8 +135,8 @@ export default function ChatList({ isCollapsed = false }) {
           <li key={c.id}>
             <div className={`flex items-center justify-between rounded border p-2 text-sm ${
               active
-                ? 'border-neutral-900 bg-neutral-100 dark:border-neutral-100 dark:bg-neutral-800'
-                : 'border-neutral-200 hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-900'
+                ? 'border-[var(--qr-primary)] bg-[color:var(--qr-primary)]/8 dark:bg-[color:var(--qr-primary)]/15'
+                : 'border-[var(--qr-border)] hover:bg-[color:var(--qr-hover)]'
             }`}>
               <button
                 type="button"
@@ -145,7 +145,7 @@ export default function ChatList({ isCollapsed = false }) {
               >
                 <div className="flex flex-col">
                   <span className="truncate">{c.title || 'Untitled Chat'}</span>
-                  <span className="text-[11px] text-neutral-500">{expiresIn(c.created_at)}</span>
+                  <span className="text-[11px] text-[color:var(--qr-subtle)]">{expiresIn(c.created_at)}</span>
                 </div>
               </button>
               <DeleteChatButton id={c.id} afterDelete={() => setChats((prev) => prev.filter((x) => x.id !== c.id))} />

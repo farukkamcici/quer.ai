@@ -120,3 +120,93 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+/* Querai Design System v1 — CSS Variables */
+:root {
+  --qr-bg: #FAFAFA;
+  --qr-surface: rgba(255,255,255,0.8);
+  --qr-border: rgba(11,16,31,0.12);
+  --qr-text: #0F172A;
+  --qr-subtle: #475569;
+  --qr-primary: #0b111f;
+  --qr-accent: #7C3AED;
+  --qr-hover: rgba(11,16,31,0.04);
+
+  --qr-radius-sm: 8px;
+  --qr-radius-md: 12px;
+  --qr-radius-lg: 16px;
+  --qr-radius-xl: 20px;
+
+  --qr-shadow-sm: 0 1px 2px rgba(15,23,42,0.06);
+  --qr-shadow-md: 0 6px 20px rgba(15,23,42,0.08);
+  --qr-shadow-lg: 0 14px 36px rgba(15,23,42,0.14);
+}
+
+[data-theme="dark"] {
+  --qr-bg: #0A1224;
+  --qr-surface: rgba(13,23,45,0.6);
+  --qr-border: rgba(255,255,255,0.12);
+  --qr-text: #E6EAF2;
+  --qr-subtle: #A5B4CF;
+  --qr-primary: #3B82F6;
+  --qr-accent: #8B5CF6;
+}
+
+/* Map Tailwind app tokens to brand for light */
+:root {
+  --background: var(--qr-bg);
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
+  --primary: var(--qr-primary);
+  --primary-foreground: #FFFFFF;
+  --secondary: #EAF2FF;
+  --secondary-foreground: #0F172A;
+  --muted: #F2F6FF;
+  --muted-foreground: #475569;
+  --accent: #EEF2FF;
+  --accent-foreground: #1E293B;
+  --destructive: #DC2626;
+  --border: var(--qr-border);
+  --input: var(--qr-border);
+  --ring: #93C5FD;
+}
+
+[data-theme="dark"] {
+  --qr-bg: #0A1224;
+  --qr-surface: rgba(13,23,45,0.6);
+  --qr-border: rgba(255,255,255,0.12);
+  --qr-text: #E6EAF2;
+  --qr-subtle: #A5B4CF;
+  /* Navy-forward dark theme primary and hover */
+  --qr-primary: #1b2a4b;
+  --qr-accent: #3b4f7d;
+  --qr-hover: rgba(27, 42, 75, 0.45);
+
+  --background: var(--qr-bg);
+  --foreground: var(--qr-text);
+  --card: rgba(17,28,50,0.6);
+  --card-foreground: var(--qr-text);
+  --popover: rgba(17,28,50,0.6);
+  --popover-foreground: var(--qr-text);
+  --primary: var(--qr-primary);
+  --primary-foreground: #EAF2FF;
+  --secondary: rgba(255,255,255,0.06);
+  --secondary-foreground: var(--qr-text);
+  --muted: rgba(255,255,255,0.06);
+  --muted-foreground: #B8C2DA;
+  --accent: rgba(124,58,237,0.18);
+  --accent-foreground: #E7E9F5;
+  --destructive: #FCA5A5;
+  --border: var(--qr-border);
+  --input: var(--qr-border);
+  --ring: #60A5FA;
+}
+
+/* Smooth theme transition */
+html[data-theme] body {
+  transition: background-color 240ms ease, color 240ms ease;
+}
