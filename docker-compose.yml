@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+  querai:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: querai-backend
+    env_file:
+      - backend/.env
+    ports:
+      - "8000:8000"
+    restart: always
