@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useConnectionStore } from "@/lib/stores/connectionStore";
+import { useChatStore } from "@/lib/stores/chatStore";
 import AddConnectionButton from "@/components/connections/AddConnectionButton";
 import { deleteConnection } from "@/app/actions/connections";
 import { Database, FileSpreadsheet, Pencil, Trash2 } from "lucide-react";
@@ -19,6 +20,7 @@ import { Button } from "@/components/ui/button";
 
 export default function ConnectionList({ connections = [], isCollapsed = false }) {
   const { selectedConnection, setSelectedConnection } = useConnectionStore();
+  const { setDataSource } = useChatStore();
   const router = useRouter();
 
   if (!connections.length) {
@@ -50,7 +52,11 @@ export default function ConnectionList({ connections = [], isCollapsed = false }
             <li key={c.id}>
               <button
                 type="button"
-                onClick={() => setSelectedConnection(isActive ? null : c)}
+                onClick={() => {
+                  const next = isActive ? null : c;
+                  setSelectedConnection(next);
+                  setDataSource(next ? next.id : null);
+                }}
                 className={`w-10 h-10 rounded border flex items-center justify-center cursor-pointer transition-colors ${
                   isActive
                     ? 'border-green-500 bg-green-50 dark:border-green-400 dark:bg-green-900/30'
@@ -79,7 +85,11 @@ export default function ConnectionList({ connections = [], isCollapsed = false }
             >
               <button
                 type="button"
-                onClick={() => setSelectedConnection(isActive ? null : c)}
+                onClick={() => {
+                  const next = isActive ? null : c;
+                  setSelectedConnection(next);
+                  setDataSource(next ? next.id : null);
+                }}
                 className="flex flex-1 items-start gap-2 text-left cursor-pointer"
                 aria-pressed={isActive}
               >

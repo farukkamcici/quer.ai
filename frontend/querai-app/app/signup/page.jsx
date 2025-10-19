@@ -43,7 +43,7 @@ export default function SignUpPage() {
     <div className="mx-auto my-10 max-w-md">
       <Card>
         <CardHeader>
-          <CardTitle>Sign Up for Quer.ai</CardTitle>
+          <CardTitle>Sign Up for Querai</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

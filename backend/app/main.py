@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api import query_router
+from app.api import query_router, chat_router
 
 app = FastAPI(
     title="Querai API",
@@ -7,6 +7,7 @@ app = FastAPI(
     version="0.1.0"
 )
 app.include_router(query_router.router, prefix="/api")
+app.include_router(chat_router.router, prefix="/api")
 
 @app.get("/")
 def read_root():

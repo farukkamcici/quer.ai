@@ -43,7 +43,7 @@ export default function LoginPage() {
     <div className="mx-auto my-10 max-w-md">
       <Card>
         <CardHeader>
-          <CardTitle>Login to Quer.ai</CardTitle>
+          <CardTitle>Login to Querai</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

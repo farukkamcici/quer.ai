@@ -69,9 +69,11 @@ querai-app/
 │     └─ select.jsx
 │
 ├─ lib/
-│  ├─ supabase_client.js          # Browser client (createBrowserClient)
+│  ├─ supabase/client.js          # Browser client (createBrowserClient)
 │  ├─ supabase/server.js          # Server client (cookies + SSR)
 │  ├─ stores/connectionStore.js   # Zustand store: selectedConnection
+│  ├─ stores/chatStore.js         # Zustand store: chat state
+│  ├─ s3/upload.js                # S3 upload helper (server action)
 │  └─ utils.js                    # cn() helper
 │
 ├─ public/                        # Static assets
@@ -86,7 +88,9 @@ querai-app/
   - Sticky glass header with app title (left) and user avatar menu (right).
   - Glass sidebar (left) with collapsible layout and connection list.
   - ChatInterface (right) filling remaining space.
-- `/api/query` (POST): Next.js route handler that forwards the request body to the Python backend at `PYTHON_BACKEND_URL/api/query`.
+- `/api/query` (POST): Proxies to Python backend at `PYTHON_BACKEND_URL/api/query`.
+- `/api/chat/create` (POST): Tries Python backend first; falls back to direct Supabase insert.
+- `/api/chat/message` (POST): Proxies to Python backend `/api/chat/message`.
 
 ## Data Flow & Workflows
 
@@ -118,18 +122,28 @@ querai-app/
   - Edge-centered glass pill toggle handle.
   - Footer hosts the “Add Connection” trigger (icon in collapsed mode).
 
-## Environment Variables
+## Setup & Environment
 
+Env vars in `.env.local`:
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `PYTHON_BACKEND_URL` (e.g., `http://localhost:8000`)
+- `AWS_REGION` (for S3 uploads)
+- `AWS_ACCESS_KEY_ID` (for S3 uploads)
+- `AWS_SECRET_ACCESS_KEY` (for S3 uploads)
+- `S3_BUCKET_NAME` (target bucket for uploads)
 
-Create an `.env.local` at project root:
-
+Example `.env.local`:
 ```
-NEXT_PUBLIC_SUPABASE_URL=...
-NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+NEXT_PUBLIC_SUPABASE_URL=https://YOUR-PROJECT.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=ey...
 PYTHON_BACKEND_URL=http://localhost:8000
+
+# Optional: enable CSV/Excel uploads to S3 from server actions
+AWS_REGION=eu-central-1
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+S3_BUCKET_NAME=your-bucket-name
 ```
 
 ## Scripts
@@ -138,6 +152,12 @@ PYTHON_BACKEND_URL=http://localhost:8000
 - `npm run build` – production build
 - `npm run start` – start production server
 - `npm run lint` – run ESLint
+
+Start dev:
+```
+npm ci
+npm run dev
+```
 
 ## Conventions
 
@@ -150,7 +170,9 @@ PYTHON_BACKEND_URL=http://localhost:8000
 
 - Dropdowns not opening: ensure our dropdown wrapper renders `children` and that the Portal isn’t clipped; header/sidebar use `z-20+`.
 - Messages hidden under header: adjust ChatInterface top padding + `scroll-pt` to match header height.
-- CORS/backend issues: verify `PYTHON_BACKEND_URL` and that `/api/query` forwards correctly.
+- Backend not configured: ensure `PYTHON_BACKEND_URL` is set; `/api/query` and `/api/chat/message` depend on it.
+- Chat not created: if backend create fails, route falls back to Supabase insert; verify `chats` table and RLS.
+- CORS/backend issues: verify `PYTHON_BACKEND_URL` and backend is reachable.
 
 ## Roadmap (nice‑to‑have)
 

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Sidebar from '@/components/layout/Sidebar'
+import ChatSidebar from '@/components/layout/ChatSidebar'
 import ChatInterface from '@/components/chat/ChatInterface'
 import UserProfile from '@/components/auth/UserProfile'
 
@@ -36,7 +37,7 @@ export default async function HomePage() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar connections={connections} user={user} />
+      <ChatSidebar />
       <main className="flex-1 flex flex-col overflow-hidden items-center bg-gradient-to-b from-sky-50 to-white dark:from-[#0b1220] dark:to-[#0a0f1c]">
         <header className="sticky top-0 z-20 w-full px-4 pt-8 pb-4 bg-transparent">
           <div className="mx-auto w-full max-w-7xl">
@@ -53,6 +54,7 @@ export default async function HomePage() {
         </header>
         <ChatInterface />
       </main>
+      <Sidebar connections={connections} user={user} />
     </div>
   )
 }
