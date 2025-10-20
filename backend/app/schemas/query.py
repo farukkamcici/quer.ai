@@ -22,7 +22,7 @@ class DataSource(BaseModel):
 
 class QueryRequest(BaseModel):
     """The main request model for the API."""
-    question: str
+    question: str = Field(..., max_length=750, description="Question to be answered")
     connection_id: Optional[str] = Field(None, description="ID of a saved connection")
     user_id: Optional[str] = Field(None, description="User ID for ownership checks")
 

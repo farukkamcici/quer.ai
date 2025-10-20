@@ -115,7 +115,7 @@ export default function ConnectionList({ connections = [], isCollapsed = false }
                   title={`${c.name} • ${c.source_type}`}
                   disabled={creating}
                 >
-                {(["CSV", "Excel"].includes(c.source_type)) ? (
+                {(() => { const st = String(c?.source_type || '').toLowerCase(); return (st === 'csv' || st === 'excel'); })() ? (
                   <FileSpreadsheet className={`h-4 w-4 ${isActive ? 'text-green-600 dark:text-green-400' : 'text-[color:var(--qr-subtle)]'}`} />
                 ) : (
                   <Database className={`h-4 w-4 ${isActive ? 'text-green-600 dark:text-green-400' : 'text-[color:var(--qr-subtle)]'}`} />
@@ -140,7 +140,7 @@ export default function ConnectionList({ connections = [], isCollapsed = false }
                 aria-pressed={isActive}
                 disabled={creating}
               >
-                {(["CSV", "Excel"].includes(c.source_type)) ? (
+                {(() => { const st = String(c?.source_type || '').toLowerCase(); return (st === 'csv' || st === 'excel'); })() ? (
                   <FileSpreadsheet className={`mt-0.5 h-4 w-4 ${isActive ? 'text-green-600 dark:text-green-400' : 'text-[color:var(--qr-subtle)]'}`} />
                 ) : (
                   <Database className={`mt-0.5 h-4 w-4 ${isActive ? 'text-green-600 dark:text-green-400' : 'text-[color:var(--qr-subtle)]'}`} />
@@ -211,13 +211,13 @@ export default function ConnectionList({ connections = [], isCollapsed = false }
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Switch data source?</DialogTitle>
-            <DialogDescription>
-              {pendingConn ? (
-                <>
-                  This will start a new chat bound to <b>{pendingConn.name}</b>
-                  {" "}
-                  <span className="ml-2 inline-flex items-center gap-1 rounded-full border border-[var(--qr-border)] bg-[var(--qr-surface)] px-2 py-0.5 text-[11px] text-[color:var(--qr-text)]/80">
-                    {(["CSV", "Excel"].includes(pendingConn.source_type)) ? (
+            <DialogDescription className="text-[var(--qr-text)]">
+                  {pendingConn ? (
+                    <>
+                      This will start a new chat bound to <b>{pendingConn.name}</b>
+                      {" "}
+                      <span className="ml-2 inline-flex items-center gap-1 rounded-full border border-[var(--qr-border)] bg-[var(--qr-surface)] px-2 py-0.5 text-[11px] text-[color:var(--qr-text)]/80">
+                    {(() => { const st = String(pendingConn?.source_type || '').toLowerCase(); return (st === 'csv' || st === 'excel'); })() ? (
                       <FileSpreadsheet className="h-3.5 w-3.5 opacity-70" />
                     ) : (
                       <Database className="h-3.5 w-3.5 opacity-70" />
@@ -264,7 +264,7 @@ function ConfirmDeleteButton({ onConfirm }) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Remove connection</DialogTitle>
-          <DialogDescription>Are you sure you want to delete this data source? This action cannot be undone.</DialogDescription>
+          <DialogDescription className="text-[var(--qr-text)]">Are you sure you want to delete this data source? This action cannot be undone.</DialogDescription>
         </DialogHeader>
         <div className="mt-4 flex justify-end gap-2">
           <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
