@@ -14,6 +14,14 @@ class DataSourceManager(ABC):
     def execute_query(self, sql_query: str) -> List[Dict[str, Any]]:
         pass
 
+    def get_schema_columns_with_types(self) -> List[Dict[str, str]]:
+        """
+        Optional convenience: return a list of dicts with schema/table/column/type.
+        Implementations may override; default falls back to names only.
+        Format: {"schema": str, "table": str, "column": str, "type": str}
+        """
+        return []
+
 class SQLAlchemyManager(DataSourceManager):
     """Manages connections and queries for SQLAlchemy compatible databases."""
     def __init__(self, engine: Engine):
@@ -34,6 +42,28 @@ class SQLAlchemyManager(DataSourceManager):
                 for col in columns:
                     schema_elements.append(f"{schema_name}.{table_name}.{col['name']}")
         return schema_elements
+
+    def get_schema_columns_with_types(self) -> List[Dict[str, str]]:
+        inspector = inspect(self._engine)
+        details: List[Dict[str, str]] = []
+        ignore_schemas = [
+            'information_schema', 'pg_catalog', 'performance_schema',
+            'mysql', 'sys', 'topology', 'tiger', 'tiger_data', 'public'
+        ]
+        for schema_name in inspector.get_schema_names():
+            if schema_name in ignore_schemas:
+                continue
+            for table_name in inspector.get_table_names(schema=schema_name):
+                columns = inspector.get_columns(table_name, schema=schema_name)
+                for col in columns:
+                    col_type = str(col.get('type', ''))
+                    details.append({
+                        "schema": schema_name,
+                        "table": table_name,
+                        "column": col.get('name'),
+                        "type": col_type,
+                    })
+        return details
 
     def execute_query(self, sql_query: str) -> List[Dict[str, Any]]:
         with self._engine.connect() as connection:
@@ -57,3 +87,18 @@ class DuckDBManager(DataSourceManager):
     def execute_query(self, sql_query: str) -> List[Dict[str, Any]]:
         df = self._con.execute(sql_query).fetchdf()
         return df.to_dict(orient='records')
+
+    def get_schema_columns_with_types(self) -> List[Dict[str, str]]:
+        df = self._con.execute(f"DESCRIBE SELECT * FROM {self._table_name};").fetchdf()
+        # DuckDB returns column_name and column_type
+        names = df['column_name'].tolist() if 'column_name' in df.columns else []
+        types = df['column_type'].tolist() if 'column_type' in df.columns else [""] * len(names)
+        out: List[Dict[str, str]] = []
+        for name, typ in zip(names, types):
+            out.append({
+                "schema": "public",
+                "table": self._table_name,
+                "column": name,
+                "type": str(typ),
+            })
+        return out

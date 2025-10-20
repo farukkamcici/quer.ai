@@ -16,44 +16,55 @@ export async function addConnection(formData) {
     const { data: { user } } = await supabase.auth.getUser();
     const withUser = (payload) => (user?.id ? { ...payload, user_id: user.id } : payload);
 
-    // DB sources
-    if (source_type === "PostgreSQL" || source_type === "MySQL") {
+    // Map UI source types to backend types
+    const st = source_type.toLowerCase();
+    const mapType = {
+      postgresql: "postgresql",
+      mysql: "mysql",
+      csv: "csv",
+      excel: "excel",
+    };
+    const backendType = mapType[st] || (source_type === "PostgreSQL" ? "postgresql" : source_type === "MySQL" ? "mysql" : source_type === "CSV" ? "csv" : source_type === "Excel" ? "excel" : null);
+
+    if (!backendType) {
+      return { success: false, error: "Unsupported source type." };
+    }
+
+    // Build payload for Python backend
+    let backendPayload = { name, source_type: backendType };
+
+    if (backendType === "postgresql" || backendType === "mysql") {
       const host = String(formData.get("host") || "").trim();
       const port = Number(formData.get("port"));
       const database = String(formData.get("database") || "").trim();
       const username = String(formData.get("username") || "").trim();
       const password = String(formData.get("password") || "").trim();
-
       if (!host || !database || !username || !password || !Number.isFinite(port)) {
         return { success: false, error: "Please fill all DB fields with valid values." };
       }
-
-      const db_details = JSON.stringify({ host, port, database, username, password });
-      const payload = withUser({ name, source_type, db_details, s3_uri: null });
-      const { error } = await supabase.from("connections").insert(payload);
-      if (error) return { success: false, error: error.message || "Failed to save connection." };
-      return { success: true };
+      backendPayload = withUser({ ...backendPayload, db_details: { host, port, database, username, password } });
+    } else {
+      const file = formData.get("file");
+      if (!file || typeof file !== "object" || typeof file.size !== "number") {
+        return { success: false, error: "Invalid file or none provided." };
+      }
+      const max = 50 * 1024 * 1024;
+      if (file.size >= max) {
+        return { success: false, error: "Invalid file or size exceeded." };
+      }
+      const s3Uri = await uploadFileToS3(file).catch(() => null);
+      if (!s3Uri) {
+        return { success: false, error: "S3 upload failed." };
+      }
+      backendPayload = withUser({ ...backendPayload, s3_uri: s3Uri });
     }
 
-    // File sources (CSV, Excel)
-    if (!(source_type === "CSV" || source_type === "Excel")) {
-      return { success: false, error: "Unsupported source type." };
+    const backendUrl = `${process.env.PYTHON_BACKEND_URL}/api/connections`;
+    const res = await fetch(backendUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(backendPayload) });
+    if (!res.ok) {
+      const err = await res.text();
+      return { success: false, error: err || 'Failed to save connection.' };
     }
-    const file = formData.get("file");
-    if (!file || typeof file !== "object" || typeof file.size !== "number") {
-      return { success: false, error: "Invalid file or none provided." };
-    }
-    const max = 50 * 1024 * 1024;
-    if (file.size >= max) {
-      return { success: false, error: "Invalid file or size exceeded." };
-    }
-    const s3Uri = await uploadFileToS3(file).catch(() => null);
-    if (!s3Uri) {
-      return { success: false, error: "S3 upload failed." };
-    }
-    const payload = withUser({ name, source_type, s3_uri: s3Uri, db_details: null });
-    const { error } = await supabase.from("connections").insert(payload);
-    if (error) return { success: false, error: error.message || "Failed to save connection." };
     return { success: true };
   } catch (e) {
     return { success: false, error: e?.message || "Unexpected error" };
@@ -63,8 +74,13 @@ export async function addConnection(formData) {
 export async function deleteConnection(connectionId) {
   try {
     const supabase = createClient();
-    const { error } = await supabase.from("connections").delete().eq("id", connectionId);
-    if (error) return { success: false, error: error.message || "Failed to delete connection." };
+    const { data: { user } } = await supabase.auth.getUser();
+    const backendUrl = `${process.env.PYTHON_BACKEND_URL}/api/connections/${connectionId}?user_id=${encodeURIComponent(user?.id || '')}`;
+    const res = await fetch(backendUrl, { method: 'DELETE' });
+    if (!res.ok) {
+      const err = await res.text();
+      return { success: false, error: err || 'Failed to delete connection.' };
+    }
     return { success: true };
   } catch (e) {
     return { success: false, error: e?.message || "Unexpected error" };
@@ -123,5 +139,21 @@ export async function updateConnection(connectionId, formData) {
     return { success: true };
   } catch (e) {
     return { success: false, error: e?.message || "Unexpected error" };
+  }
+}
+
+export async function refreshConnection(connectionId) {
+  try {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    const backendUrl = `${process.env.PYTHON_BACKEND_URL}/api/connections/${connectionId}/refresh?user_id=${encodeURIComponent(user?.id || '')}`;
+    const res = await fetch(backendUrl, { method: 'PUT' });
+    if (!res.ok) {
+      const errText = await res.text();
+      return { success: false, error: errText || 'Failed to refresh schema.' };
+    }
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: e?.message || 'Unexpected error' };
   }
 }

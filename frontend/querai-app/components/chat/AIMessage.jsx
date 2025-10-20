@@ -9,6 +9,23 @@ export default function AIMessage({ content }) {
   const explanation = content?.explanation || content?.message || "";
   const sql = content?.sql_query || content?.sql || "";
   const data = Array.isArray(content?.data) ? content.data : [];
+  const responseType = content?.response_type;
+
+  const typeLabel = responseType === 'sql'
+    ? 'Data Query'
+    : responseType === 'meta'
+    ? 'Schema Info'
+    : responseType === 'error'
+    ? 'Error'
+    : undefined;
+
+  const typeClass = responseType === 'sql'
+    ? 'text-[color:var(--qr-primary)] bg-[color:var(--qr-primary)]/20 border-[color:var(--qr-primary)]/50 dark:text-white dark:bg-transparent dark:border-white'
+    : responseType === 'meta'
+    ? 'text-[color:var(--qr-accent)] bg-[color:var(--qr-accent)]/20 border-[color:var(--qr-accent)]/50 dark:text-white dark:bg-transparent dark:border-white'
+    : responseType === 'error'
+    ? 'text-red-400 bg-red-500/15 border-red-500/40'
+    : 'text-[color:var(--qr-text)]/80 bg-[color:var(--qr-hover)] border-[color:var(--qr-border)]/60';
 
   const [copied, setCopied] = useState(false);
 
@@ -26,7 +43,16 @@ export default function AIMessage({ content }) {
         <Accordion type="multiple" defaultValue={["details"]}>
           {(explanation || sql) ? (
             <AccordionItem value="details">
-              <AccordionTrigger>Explanation</AccordionTrigger>
+              <AccordionTrigger>
+                <span className="inline-flex items-center gap-2">
+                  Explanation
+                  {typeLabel && (
+                    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium tracking-wide ${typeClass}`}>
+                      {typeLabel}
+                    </span>
+                  )}
+                </span>
+              </AccordionTrigger>
               <AccordionContent>
                 {explanation ? (
                   <p className="mb-3 text-sm leading-relaxed text-[var(--qr-text)]/90">{explanation}</p>

@@ -74,7 +74,8 @@ export default function ChatList({ isCollapsed = false }) {
         const explanation = typeof m.content === 'string' ? m.content : (m.content?.explanation || '');
         const sql = m.sql || m.content?.sql || m.sql_query || '';
         const rows = Array.isArray(m.results) ? m.results : (Array.isArray(m.content?.data) ? m.content.data : []);
-        return { role: 'assistant', content: { explanation, sql, data: rows } };
+        const response_type = m.response_type || m.content?.response_type || (sql ? 'sql' : 'meta');
+        return { role: 'assistant', content: { explanation, sql, data: rows, response_type } };
       }
       if (m?.role === 'user') {
         return { role: 'user', content: m.content };

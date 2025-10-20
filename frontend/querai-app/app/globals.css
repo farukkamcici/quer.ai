@@ -219,3 +219,26 @@
 html[data-theme] body {
   transition: background-color 240ms ease, color 240ms ease;
 }
+
+/* Custom Scrollbar Styling */
+/* Webkit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--qr-surface, #0b1529);
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--qr-primary, #374151);
+  border-radius: var(--qr-radius-md, 12px);
+  border: 2px solid var(--qr-surface, #0b1529);
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--qr-subtle, #4B5563);
+}
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--qr-primary, #374151) var(--qr-surface, #0b1529);
+}

@@ -58,7 +58,8 @@ export default function ChatInterface() {
             const explanation = typeof m.content === 'string' ? m.content : (m.content?.explanation || '');
             const sql = m.sql || m.content?.sql || m.sql_query || '';
             const rows = Array.isArray(m.results) ? m.results : (Array.isArray(m.content?.data) ? m.content.data : []);
-            return { role: 'assistant', content: { explanation, sql, data: rows } };
+            const response_type = m.response_type || m.content?.response_type || (sql ? 'sql' : 'meta');
+            return { role: 'assistant', content: { explanation, sql, data: rows, response_type } };
           }
           if (m?.role === 'user') {
             return { role: 'user', content: m.content };
@@ -137,7 +138,7 @@ export default function ChatInterface() {
       });
       const data = await res.json();
       if (res.ok) {
-        addMessage({ role: "ai", content: { explanation: data?.explanation, sql: data?.sql, data: data?.results } });
+        addMessage({ role: "ai", content: { explanation: data?.explanation, sql: data?.sql, data: data?.results, response_type: data?.response_type } });
         // Auto-title after first exchange
         try {
           if (!titled && firstUserText && currentMessages.length === 1) {

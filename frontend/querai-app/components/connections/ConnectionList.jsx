@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useConnectionStore } from "@/lib/stores/connectionStore";
 import { useChatStore } from "@/lib/stores/chatStore";
 import AddConnectionButton from "@/components/connections/AddConnectionButton";
-import { deleteConnection } from "@/app/actions/connections";
-import { Database, FileSpreadsheet, Pencil, Trash2 } from "lucide-react";
+import { deleteConnection, refreshConnection } from "@/app/actions/connections";
+import { Database, FileSpreadsheet, Pencil, Trash2, RotateCw, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import {
@@ -22,6 +22,7 @@ export default function ConnectionList({ connections = [], isCollapsed = false }
   const { selectedConnection, setSelectedConnection } = useConnectionStore();
   const { setDataSource } = useChatStore();
   const router = useRouter();
+  const [refreshingId, setRefreshingId] = useState(null);
 
   if (!connections.length) {
     if (isCollapsed) {
@@ -104,6 +105,33 @@ export default function ConnectionList({ connections = [], isCollapsed = false }
                 </div>
               </button>
               <div className="ml-2 flex items-center gap-1">
+                <button
+                  type="button"
+                  className="rounded p-1 text-[color:var(--qr-text)] hover:bg-[color:var(--qr-hover)] cursor-pointer"
+                  title="Refresh schema"
+                  aria-busy={refreshingId === c.id}
+                  disabled={refreshingId === c.id}
+                  onClick={async () => {
+                    try {
+                      setRefreshingId(c.id);
+                      const res = await refreshConnection(c.id);
+                      if (res?.success) {
+                        toast.success('Schema refreshed.');
+                        router.refresh();
+                      } else {
+                        toast.error(res?.error || 'Failed to refresh schema');
+                      }
+                    } finally {
+                      setRefreshingId(null);
+                    }
+                  }}
+                >
+                  {refreshingId === c.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <RotateCw className="h-4 w-4" />
+                  )}
+                </button>
                 <AddConnectionButton connection={c}>
                   <button
                     type="button"

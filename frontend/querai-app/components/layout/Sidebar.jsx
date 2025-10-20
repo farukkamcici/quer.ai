@@ -3,12 +3,15 @@
 import { useEffect, useState } from "react";
 import AddConnectionButton from "@/components/connections/AddConnectionButton";
 import ConnectionList from "@/components/connections/ConnectionList";
+import SchemaViewer from "@/components/connections/SchemaViewer";
+import { useConnectionStore } from "@/lib/stores/connectionStore";
 import { Plus, GripVertical } from "lucide-react";
 import { Surface } from "@/components/brand/Surface";
 
 export default function Sidebar({ connections = [], user = null }) {
   // Start expanded to match SSR; hydrate to saved value after mount
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { selectedConnection } = useConnectionStore();
 
   useEffect(() => {
     try {
@@ -41,6 +44,9 @@ export default function Sidebar({ connections = [], user = null }) {
         {/* Content (scrollable list) */}
         <div className={`relative flex-1 overflow-y-auto overflow-x-hidden ${isCollapsed ? 'p-2' : 'p-4'}`}>
           <ConnectionList connections={connections} isCollapsed={isCollapsed} />
+          {!isCollapsed && selectedConnection?.schema_json?.length ? (
+            <SchemaViewer schema={selectedConnection.schema_json} />
+          ) : null}
         </div>
 
         {/* Footer (Add Connection) */}

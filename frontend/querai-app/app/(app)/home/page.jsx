@@ -25,7 +25,7 @@ export default async function AppHomePage() {
   try {
     const query = supabase
       .from('connections')
-      .select('id,name,source_type,db_details,user_id,created_at')
+      .select('id,name,source_type,db_details,user_id,created_at,schema_json')
       .order('created_at', { ascending: false })
     const { data, error } = await query.eq('user_id', user.id)
     if (error) throw error
@@ -34,7 +34,7 @@ export default async function AppHomePage() {
     // Fallback without filter if schema differs
     const { data } = await supabase
       .from('connections')
-      .select('id,name,source_type,db_details,created_at')
+      .select('id,name,source_type,db_details,created_at,schema_json')
       .order('created_at', { ascending: false })
     connections = data || []
   }

@@ -23,10 +23,12 @@ class DataSource(BaseModel):
 class QueryRequest(BaseModel):
     """The main request model for the API."""
     question: str
-    data_source: DataSource = Field(None, description="The data source.")
+    connection_id: Optional[str] = Field(None, description="ID of a saved connection")
+    user_id: Optional[str] = Field(None, description="User ID for ownership checks")
 
 
 class QueryResponse(BaseModel):
+    response_type: Optional[str] = Field(default=None, description="'sql' | 'meta' | 'error'")
     sql_query: str
     explanation: str
     data: List[Dict[str, Any]]
