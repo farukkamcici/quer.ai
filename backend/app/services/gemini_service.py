@@ -67,3 +67,33 @@ def generate_intelligent_response(question: str, db_schema: str) -> tuple[str, s
         error_message = f"An error occurred: {str(e)}"
         # Return a clear error response
         return "error", None, error_message
+
+
+def generate_chat_title(question: str) -> str:
+    """
+    Uses Gemini to generate a very short title for a chat session
+    based on the user's first question.
+    """
+    prompt = f"""
+    You are a title generation expert. Your task is to summarize the user's question into a concise, 2-to-5 word chat title. Do not use quotes or special characters.
+
+    ### User Question:
+    {question}
+
+    ### Title:
+    """
+    try:
+        response = model.generate_content(prompt)
+        title = response.text.strip().replace("\"", "").replace("*", "")
+
+        if not title:
+            return "New Chat"
+        return title
+
+    except Exception as e:
+        print(f"Error generating chat title: {e}")
+        # Fallback: use the first 5 words of the question
+        try:
+            return " ".join((question or "New Chat").split()[:5]) or "New Chat"
+        except Exception:
+            return "New Chat"
