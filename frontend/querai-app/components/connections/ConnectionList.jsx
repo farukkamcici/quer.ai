@@ -5,7 +5,7 @@ import { useConnectionStore } from "@/lib/stores/connectionStore";
 import { useChatStore } from "@/lib/stores/chatStore";
 import AddConnectionButton from "@/components/connections/AddConnectionButton";
 import { deleteConnection, refreshConnection } from "@/app/actions/connections";
-import { Database, FileSpreadsheet, Pencil, Trash2, RotateCw, Loader2 } from "lucide-react";
+import { Database, FileSpreadsheet, Pencil, Trash2, RotateCw, Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import {
@@ -20,9 +20,60 @@ import { Button } from "@/components/ui/button";
 
 export default function ConnectionList({ connections = [], isCollapsed = false }) {
   const { selectedConnection, setSelectedConnection } = useConnectionStore();
-  const { setDataSource } = useChatStore();
+  const { currentChatId, setMessages, setChatId, setDataSource } = useChatStore();
   const router = useRouter();
   const [refreshingId, setRefreshingId] = useState(null);
+  const [creating, setCreating] = useState(false);
+  const [switchOpen, setSwitchOpen] = useState(false);
+  const [pendingConn, setPendingConn] = useState(null);
+
+  async function handleSelectConnection(c, isActive) {
+    // Same click on active: keep existing toggle behavior (deselect)
+    if (isActive) {
+      const next = null;
+      setSelectedConnection(next);
+      setDataSource(null);
+      return;
+    }
+
+    // If a chat exists, ask to start a new chat bound to this source
+    if (currentChatId) {
+      setPendingConn(c);
+      setSwitchOpen(true);
+      return;
+    }
+
+    // No chat exists: just select; ChatInterface will auto-create
+    setSelectedConnection(c);
+    setDataSource(c ? c.id : null);
+  }
+
+  async function confirmSwitchToPending() {
+    if (!pendingConn) return;
+    try {
+      setCreating(true);
+      const res = await fetch('/api/chat/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data_source_id: pendingConn.id }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data?.chat_id) {
+        setMessages([]);
+        setChatId(data.chat_id);
+        setSelectedConnection(pendingConn);
+        setDataSource(pendingConn.id);
+        try { localStorage.setItem('currentChatId', data.chat_id); } catch {}
+        try { window.dispatchEvent(new CustomEvent('chat:refresh-list')); } catch {}
+        setSwitchOpen(false);
+        setPendingConn(null);
+      } else {
+        toast.error(data?.error || 'Failed to start a new chat for this source.');
+      }
+    } finally {
+      setCreating(false);
+    }
+  }
 
   if (!connections.length) {
     if (isCollapsed) {
@@ -45,27 +96,25 @@ export default function ConnectionList({ connections = [], isCollapsed = false }
   }
 
   return (
-    <ul className="space-y-2">
-      {connections.map((c) => {
-        const isActive = selectedConnection?.id === c.id;
-        if (isCollapsed) {
-          return (
-            <li key={c.id}>
-              <button
-                type="button"
-                onClick={() => {
-                  const next = isActive ? null : c;
-                  setSelectedConnection(next);
-                  setDataSource(next ? next.id : null);
-                }}
-                className={`w-10 h-10 rounded border flex items-center justify-center cursor-pointer transition-colors ${
-                  isActive
-                    ? 'border-green-500'
-                    : 'border-[var(--qr-border)] hover:bg-[color:var(--qr-hover)]'
-                }`}
-                aria-pressed={isActive}
-                title={`${c.name} • ${c.source_type}`}
-              >
+    <>
+      <ul className="space-y-2">
+        {connections.map((c) => {
+          const isActive = selectedConnection?.id === c.id;
+          if (isCollapsed) {
+            return (
+              <li key={c.id}>
+                <button
+                  type="button"
+                onClick={() => handleSelectConnection(c, isActive)}
+                  className={`w-10 h-10 rounded border flex items-center justify-center cursor-pointer transition-colors ${
+                    isActive
+                      ? 'border-green-500'
+                      : 'border-[var(--qr-border)] hover:bg-[color:var(--qr-hover)]'
+                  }`}
+                  aria-pressed={isActive}
+                  title={`${c.name} • ${c.source_type}`}
+                  disabled={creating}
+                >
                 {(["CSV", "Excel"].includes(c.source_type)) ? (
                   <FileSpreadsheet className={`h-4 w-4 ${isActive ? 'text-green-600 dark:text-green-400' : 'text-[color:var(--qr-subtle)]'}`} />
                 ) : (
@@ -86,13 +135,10 @@ export default function ConnectionList({ connections = [], isCollapsed = false }
             >
               <button
                 type="button"
-                onClick={() => {
-                  const next = isActive ? null : c;
-                  setSelectedConnection(next);
-                  setDataSource(next ? next.id : null);
-                }}
+                onClick={() => handleSelectConnection(c, isActive)}
                 className="flex flex-1 items-start gap-2 text-left cursor-pointer"
                 aria-pressed={isActive}
+                disabled={creating}
               >
                 {(["CSV", "Excel"].includes(c.source_type)) ? (
                   <FileSpreadsheet className={`mt-0.5 h-4 w-4 ${isActive ? 'text-green-600 dark:text-green-400' : 'text-[color:var(--qr-subtle)]'}`} />
@@ -157,8 +203,48 @@ export default function ConnectionList({ connections = [], isCollapsed = false }
             </div>
           </li>
         );
-      })}
-    </ul>
+        })}
+      </ul>
+
+      {/* Confirm Switch Dialog */}
+      <Dialog open={switchOpen} onOpenChange={(v) => { setSwitchOpen(v); if (!v) setPendingConn(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Switch data source?</DialogTitle>
+            <DialogDescription>
+              {pendingConn ? (
+                <>
+                  This will start a new chat bound to <b>{pendingConn.name}</b>
+                  {" "}
+                  <span className="ml-2 inline-flex items-center gap-1 rounded-full border border-[var(--qr-border)] bg-[var(--qr-surface)] px-2 py-0.5 text-[11px] text-[color:var(--qr-text)]/80">
+                    {(["CSV", "Excel"].includes(pendingConn.source_type)) ? (
+                      <FileSpreadsheet className="h-3.5 w-3.5 opacity-70" />
+                    ) : (
+                      <Database className="h-3.5 w-3.5 opacity-70" />
+                    )}
+                    <span className="uppercase tracking-wide">{pendingConn.source_type}</span>
+                  </span>
+                  . Your current chat will remain in the list.
+                </>
+              ) : (
+                <>This will start a new chat bound to the selected source.</>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4 flex justify-end gap-2">
+            <Button variant="outline" onClick={() => { setSwitchOpen(false); setPendingConn(null); }} disabled={creating}>Cancel</Button>
+            <Button onClick={confirmSwitchToPending} disabled={creating}>
+              {creating ? 'Starting…' : (
+                <span className="inline-flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Start New Chat
+                </span>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
