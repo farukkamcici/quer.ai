@@ -76,7 +76,7 @@ def process_query(request: QueryRequest) -> QueryResponse:
             return QueryResponse(response_type="error", sql_query="", explanation=error_msg, data=[{"error": error_msg}])
 
         # Build hybrid context for LLM
-        if not is_large:
+        if is_large:
             db_schema = _build_focused_schema_from_parts(schema_elements_flat)
         else:
             # Use semantic search to filter

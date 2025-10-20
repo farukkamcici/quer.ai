@@ -2,9 +2,11 @@ import numpy as np
 import faiss
 from sentence_transformers import SentenceTransformer
 
+_model_cache = SentenceTransformer('paraphrase-multilingual-mpnet-base-v2')
+
 class SemanticSearch:
     def __init__(self, model_name: str = 'paraphrase-multilingual-mpnet-base-v2'):
-        self.model = SentenceTransformer(model_name)
+        self.model = _model_cache
         self.index = None
         self.schema_elements = []
 
