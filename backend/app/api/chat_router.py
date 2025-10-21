@@ -4,6 +4,7 @@ from pydantic import BaseModel
 import os
 import requests
 from typing import Optional, Any, Dict
+from uuid import UUID
 from app.schemas.query import QueryResponse, QueryRequest
 from app.core import orchestrator
 from app.services import gemini_service
@@ -26,20 +27,27 @@ router = APIRouter()
 SUPABASE_URL = os.getenv("SUPABASE_URL") or os.getenv("NEXT_PUBLIC_SUPABASE_URL")
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
 
-def _sb_headers() -> Dict[str, str]:
+def _sb_headers(prefer: str | None = None) -> Dict[str, str]:
   if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
     raise RuntimeError("Supabase env vars missing (SUPABASE_URL / SUPABASE_SERVICE_KEY)")
-  return {
+  headers = {
     "apikey": SUPABASE_SERVICE_KEY,
     "Authorization": f"Bearer {SUPABASE_SERVICE_KEY}",
     "Content-Type": "application/json",
   }
+  if prefer:
+    headers["Prefer"] = prefer
+  return headers
 
 
 @router.post("/chat/create")
 def create_chat(req: CreateChatRequest) -> Dict[str, Any]:
   payload = {"user_id": req.user_id, "title": req.title or None, "data_source_id": None, "messages": []}
-  r = requests.post(f"{SUPABASE_URL}/rest/v1/chats", headers=_sb_headers(), json=payload)
+  r = requests.post(
+    f"{SUPABASE_URL}/rest/v1/chats",
+    headers=_sb_headers("return=representation"),
+    json=payload,
+  )
   if not r.ok:
     raise HTTPException(status_code=400, detail=r.text)
   data = r.json()
@@ -161,12 +169,33 @@ def delete_all_chats(user_id: str = Query(...)) -> Dict[str, Any]:
   try:
     r = requests.delete(
       f"{SUPABASE_URL}/rest/v1/chats?user_id=eq.{user_id}",
-      headers=_sb_headers(),
+      headers=_sb_headers("return=minimal"),
     )
-    if not r.ok:
-      raise HTTPException(status_code=400, detail=r.text)
-    return {"deleted": True}
+    if r.status_code in (200, 204):
+      count_header = r.headers.get("Content-Range") or r.headers.get("content-range")
+      return {"deleted": True, "count": count_header}
+    raise HTTPException(status_code=r.status_code, detail=r.text)
+  except HTTPException:
+    raise
   except Exception as e:
     raise HTTPException(status_code=500, detail=str(e))
 
-  return {"explanation": explanation, "sql": sql, "results": data, "response_type": response_type}
+
+@router.delete("/chat/{chat_id}")
+def delete_chat(chat_id: UUID, user_id: str = Query(...)) -> Dict[str, Any]:
+  """Delete a single chat if it belongs to the provided user."""
+  try:
+    chat_str = str(chat_id)
+    r = requests.delete(
+      f"{SUPABASE_URL}/rest/v1/chats?id=eq.{chat_str}&user_id=eq.{user_id}",
+      headers=_sb_headers("return=minimal"),
+    )
+    if r.status_code == 204:
+      return {"deleted": True, "id": chat_str}
+    if r.status_code == 200:
+      return {"deleted": True, "id": chat_str}
+    raise HTTPException(status_code=r.status_code, detail=r.text)
+  except HTTPException:
+    raise
+  except Exception as e:
+    raise HTTPException(status_code=500, detail=str(e))

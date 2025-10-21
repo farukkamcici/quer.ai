@@ -161,14 +161,18 @@ export default function ChatList({ isCollapsed = false }) {
 function DeleteChatButton({ id, afterDelete }) {
   const { currentChatId, resetChat, setChatId } = useChatStore();
   const [open, setOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
   async function confirmDelete() {
-    const supabase = createClient();
-    const { error } = await supabase.from('chats').delete().eq('id', id);
-    if (error) {
-      // eslint-disable-next-line no-console
-      console.error('Delete failed', error);
-      return;
-    }
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/chat/${id}`, { method: 'DELETE' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.deleted) {
+        // eslint-disable-next-line no-console
+        console.error('Delete failed', data);
+        return;
+      }
     if (currentChatId === id) {
       resetChat();
       setChatId(null);
@@ -177,6 +181,9 @@ function DeleteChatButton({ id, afterDelete }) {
     afterDelete?.();
     try { window.dispatchEvent(new CustomEvent('chat:refresh-list')); } catch {}
     setOpen(false);
+    } finally {
+      setDeleting(false);
+    }
   }
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -185,6 +192,7 @@ function DeleteChatButton({ id, afterDelete }) {
           type="button"
           className="ml-2 rounded p-1 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950"
           title="Delete Chat"
+          disabled={deleting}
         >
           <Trash2 className="h-4 w-4" />
         </button>
@@ -195,8 +203,10 @@ function DeleteChatButton({ id, afterDelete }) {
           <DialogDescription>This will permanently delete this chat and its messages. This action cannot be undone.</DialogDescription>
         </DialogHeader>
         <div className="mt-4 flex justify-end gap-2">
-          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-          <Button variant="destructive" onClick={confirmDelete}>Delete</Button>
+          <Button variant="outline" onClick={() => setOpen(false)} disabled={deleting}>Cancel</Button>
+          <Button variant="destructive" onClick={confirmDelete} disabled={deleting}>
+            {deleting ? 'Deleting…' : 'Delete'}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
