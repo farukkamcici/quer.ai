@@ -39,7 +39,7 @@ export default function ChatSidebar() {
 
         {/* Header */}
         <div className={`relative flex-shrink-0 ${isCollapsed ? 'px-2 py-3' : 'px-4 py-4'} border-b border-[var(--qr-border)]`}>
-          <div className="flex items-center justify-between">
+          <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
             {!isCollapsed && (
               <h2 className="text-xs font-semibold tracking-wide text-[var(--qr-text)]/70">Chats</h2>
             )}
@@ -139,10 +139,10 @@ function DeleteAllChatsButton({ compact = false }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{button}</DialogTrigger>
-      <DialogContent>
+      <DialogContent className="text-[var(--qr-text)]">
         <DialogHeader>
           <DialogTitle>Delete all chats</DialogTitle>
-          <DialogDescription className="text-[var(--qr-text)]">
+          <DialogDescription className="text-[color:var(--qr-subtle)]">
             This will permanently delete all your chats and their messages. This action cannot be undone.
           </DialogDescription>
         </DialogHeader>

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Label } from "@/components/ui/label";
@@ -39,15 +40,15 @@ export default function LoginForm({ onSwitch }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Social auth */}
-      <button type="button" className="w-full rounded-md border border-[color:var(--qr-border)]/60 bg-[color:var(--qr-surface)]/20 px-3 py-2 text-sm text-neutral-100 hover:bg-[color:var(--qr-surface)]/30 transition">
-        <span className="inline-flex items-center gap-2">
-          <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
-            <path fill="#FFC107" d="M43.6 20.5H42v-.1H24v7.2h11.3C33.9 31 29.4 34 24 34c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.3 0 6.3 1.2 8.6 3.2l5.1-5.1C34.9 3.4 29.7 1.5 24 1.5 11.5 1.5 1.5 11.5 1.5 24S11.5 46.5 24 46.5 46.5 36.5 46.5 24c0-1.1-.1-2.2-.3-3.5z"/>
-            <path fill="#FF3D00" d="M6.3 14.7l5.9 4.3C13.8 16 18.5 13 24 13c3.3 0 6.3 1.2 8.6 3.2l5.1-5.1C34.9 7.4 29.7 5.5 24 5.5c-7.8 0-14.5 4.4-17.7 10.9z"/>
-            <path fill="#4CAF50" d="M24 42.5c5.3 0 10.2-2 13.8-5.2l-6.4-5c-2.1 1.5-4.8 2.4-7.4 2.4-5.4 0-10-3.6-11.6-8.6l-6.1 4.7C9.4 37.7 16.1 42.5 24 42.5z"/>
-            <path fill="#1976D2" d="M43.6 20.5H42v-.1H24v7.2h11.3c-1.3 3.9-5.1 6.8-9.3 6.8-2.7 0-5.2-1.1-7-2.9l-6.1 4.7C15.9 40.6 19.7 42.5 24 42.5c7.9 0 14.5-4.8 17-11.7.9-2.2 1.4-4.7 1.4-7.3 0-1.1-.1-2.2-.3-3.5z"/>
-          </svg>
-          Login with Google
+      <button
+        type="button"
+        className="w-full rounded-lg border border-white/30 bg-white/90 px-3 py-2.5 text-sm font-medium text-neutral-900 transition hover:bg-white"
+      >
+        <span className="inline-flex w-full items-center justify-center gap-3">
+          <span className="relative h-5 w-5">
+            <Image src="/google-icon.svg" alt="Google" fill sizes="20px" />
+          </span>
+          <span className="tracking-tight">Continue with Google</span>
         </span>
       </button>
 

@@ -147,7 +147,7 @@ export default function AddConnectionButton({ connection = null, children = null
       <DialogTrigger asChild>
         {children ? children : <Button className="w-full">Add Source</Button>}
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="rounded-3xl">
         <DialogHeader>
           <DialogTitle>{connection ? 'Edit Source' : 'Add Source'}</DialogTitle>
           <DialogDescription>{connection ? 'Update your database credentials.' : 'Enter your database credentials.'}</DialogDescription>
@@ -175,24 +175,30 @@ export default function AddConnectionButton({ connection = null, children = null
                   <FormLabel>Source Type</FormLabel>
                   <RadioGroup className="grid grid-cols-2 gap-3 sm:grid-cols-3" value={field.value} onValueChange={field.onChange}>
                     {[
-                      { value: "PostgreSQL", label: "PostgreSQL", icon: <Database className="h-4 w-4" /> },
-                      { value: "MySQL", label: "MySQL", icon: <Database className="h-4 w-4" /> },
-                      { value: "CSV", label: "CSV", icon: <FileSpreadsheet className="h-4 w-4" /> },
-                      { value: "Excel", label: "Excel", icon: <FileSpreadsheet className="h-4 w-4" /> },
-                    ].map((opt) => (
-                      <label
-                        key={opt.value}
-                        className={`flex cursor-pointer items-center gap-2 rounded-md border p-3 text-sm transition-colors ${
-                          field.value === opt.value
-                            ? 'border-neutral-900 bg-neutral-100 dark:border-neutral-100 dark:bg-neutral-800'
-                            : 'border-neutral-200 hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-900'
-                        }`}
-                      >
-                        <RadioGroupItem value={opt.value} className="mt-0.5" />
-                        {opt.icon}
-                        <span>{opt.label}</span>
-                      </label>
-                    ))}
+                      { value: "PostgreSQL", label: "Postgres", icon: Database },
+                      { value: "MySQL", label: "MySQL", icon: Database },
+                      { value: "CSV", label: "CSV", icon: FileSpreadsheet },
+                      { value: "Excel", label: "Excel", icon: FileSpreadsheet },
+                    ].map((opt) => {
+                      const Icon = opt.icon;
+                      const iconClass = field.value === opt.value
+                        ? 'text-neutral-800 dark:text-neutral-200'
+                        : 'text-neutral-500 dark:text-neutral-400';
+                      return (
+                        <label
+                          key={opt.value}
+                          className={`flex cursor-pointer items-center gap-2 rounded-md border p-3 text-sm transition-colors ${
+                            field.value === opt.value
+                              ? 'border-neutral-900 bg-neutral-100 dark:border-neutral-100 dark:bg-neutral-800'
+                              : 'border-neutral-200 hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-900'
+                          }`}
+                        >
+                          <RadioGroupItem value={opt.value} className="mt-0.5" />
+                          <Icon className={`h-4 w-4 shrink-0 ${iconClass}`} />
+                          <span>{opt.label}</span>
+                        </label>
+                      );
+                    })}
                   </RadioGroup>
                   <FormMessage>{fieldState.error?.message}</FormMessage>
                 </FormItem>

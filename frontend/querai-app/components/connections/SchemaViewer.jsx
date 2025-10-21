@@ -95,10 +95,14 @@ export default function SchemaViewer({ schema = [] }) {
                       <AccordionItem key={t.table_name + tIdx} value={tableKey}>
                         <AccordionTrigger className="px-1">
                           <span className="inline-flex items-center gap-2 truncate">
-                            <TableIcon className="h-3.5 w-3.5 opacity-70" />
-                            {t.table_name}
+                            <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center">
+                              <TableIcon className="h-3.5 w-3.5 opacity-70" />
+                            </span>
+                            <span className="truncate">{t.table_name}</span>
                           </span>
-                          <span className="ml-2 text-[10px] text-[color:var(--qr-subtle)]">{t.columns.length}</span>
+                          <span className="ml-2 whitespace-nowrap rounded-full border border-[var(--qr-border)] bg-[color:var(--qr-hover)] px-2 py-0.5 text-[10px] text-[color:var(--qr-subtle)]">
+                            {t.columns.length} {t.columns.length === 1 ? 'col' : 'cols'}
+                          </span>
                         </AccordionTrigger>
                         <AccordionContent>
                         {t.columns.length ? (
@@ -110,7 +114,7 @@ export default function SchemaViewer({ schema = [] }) {
                                 <div key={name + cIdx} className="flex items-center justify-between gap-2 truncate text-[13px] text-[var(--qr-text)]">
                                   <div className="flex items-center gap-2 min-w-0">
                                     <Dot className="h-4 w-4 -ml-1 opacity-60 shrink-0" />
-                                    <span className="font-mono truncate">{name}</span>
+                                    <span className="font-mono truncate" title={name} data-tooltip={name}>{name}</span>
                                   </div>
                                   {typ ? (
                                     <span className="ml-2 shrink-0 rounded-full border border-[var(--qr-border)] bg-[color:var(--qr-hover)] px-2 py-0.5 text-[10px] text-[color:var(--qr-text)]/80">
