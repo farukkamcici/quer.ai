@@ -1,126 +1,145 @@
 # Quer.ai Frontend (Next.js App Router)
 
-Production‑ready Next.js 15 App Router application for Quer.ai with protected auth, glassmorphism UI, connection management, and a sticky chat interface powered by Supabase and a Python backend.
+Production-ready Next.js 15 App Router application for Quer.ai featuring a marketing landing page, dual-sidebar chat workspace, Supabase auth, and deep integration with the FastAPI backend for connection and chat orchestration.
 
 ## Tech Stack
 
-- Next.js App Router (15.x), React 19
-- Tailwind CSS 4 for utility styling
+- Next.js App Router (15.x) with React 19
+- Tailwind CSS 4 + CSS custom properties for theming
 - shadcn/ui (Radix primitives + custom wrappers) for UI components
-- Supabase (auth + client/server helpers)
-- Zustand for lightweight global state
-- Sonner for toast notifications
-- lucide-react icon set
+- Supabase (`@supabase/ssr`) for server/client auth helpers
+- Zustand stores for chat + connection state
+- Sonner toast notifications & lucide-react icon set
+- Framer Motion for hero/section entry animations
+- AWS SDK v3 (`@aws-sdk/client-s3`, `@aws-sdk/lib-storage`) + `uuid` for uploads
+- zod + react-hook-form for type-safe forms and validation
 
 ## Features
 
-- Protected routes with server-side auth check (redirects unauthenticated users to `/login`).
-- Login/Sign Up pages using Supabase (`signInWithPassword`, `signUp`).
-- User profile dropdown with secure server action logout.
-- Data Connections sidebar:
-  - Add/Edit using shadcn Form + react-hook-form + zod validation.
-  - Delete with a shadcn Dialog confirmation.
-  - Collapsible layout, icon-only mode when collapsed.
-  - Selected item toggle and green active border.
-- Sticky, fixed layout: browser doesn’t scroll; only chat and sidebar list scroll internally.
-- Chat interface:
-  - Sticky input bar; message history auto-scrolls to newest message.
-  - AI message cards are full-width with internal max-height + scroll.
-  - “Details” accordion for explanation + SQL (Copy button), data table below.
-  - Playful rotating loading states while waiting for backend.
-- API proxy route (`/api/query`) forwards to Python backend (keeps backend URL private, avoids CORS).
-- Glassmorphism design for the header and sidebar (blue‑white tint, blur, rounded, depth).
+- Marketing landing page at `/` with Hero/Features/Footer sections, Plus Jakarta Sans branding, and query-driven `AuthModal` overlay (`?auth=login|signup`).
+- Authenticated workspace at `/home` (App route group) guarded server-side by Supabase; includes glassmorphism layout, theme toggle, and user menu.
+- Dual sidebars
+  - `ChatSidebar`: chat history with TTL badges, delete-all dialog, collapsed icon mode with persisted state.
+  - `Sidebar`: data sources list, schema viewer accordion, add/edit dialogs, refresh action, collapsed state persisted in `localStorage`.
+- Connection management modal with zod + RHF validation, S3 uploads for CSV/Excel, and FastAPI `/api/connections` integration for schema caching.
+- Chat experience driven by Zustand stores: auto chat creation when a source is selected, localStorage-backed current chat id, meta/SQL response rendering with copyable SQL + results table.
+- API proxies under `app/api/*` forward to FastAPI (`/api/query`, `/api/chat/*`, `/api/connections/*`) while handling Supabase fallback logic for chat creation/deletion.
+- Theme + design system: CSS tokens in `globals.css`, `Surface` glass components, persisted `data-theme` via inline script + `ThemeToggle` component.
 
 ## Project Structure
 
 ```
 querai-app/
 ├─ app/
-│  ├─ api/
-│  │  └─ query/route.js           # Proxy to Python backend
+│  ├─ (marketing)/page.jsx            # Public landing page
+│  ├─ (app)/home/page.jsx             # Authenticated workspace shell
+│  ├─ chat/[id]/page.jsx              # Deep link into a saved chat
 │  ├─ actions/
-│  │  ├─ auth.js                  # signOut server action
-│  │  └─ connections.js           # add/update/delete connection actions
-│  ├─ login/page.jsx              # Login UI + Supabase
-│  ├─ signup/page.jsx             # Sign up UI + Supabase
-│  ├─ layout.js                   # Root layout with Toaster
-│  └─ page.js                     # Protected home, layout + ChatInterface
+│  │  ├─ auth.js                      # signOut server action
+│  │  └─ connections.js               # add/update/delete/refresh connection actions
+│  ├─ api/
+│  │  ├─ query/route.js               # Proxy to FastAPI /api/query
+│  │  └─ chat/
+│  │     ├─ create/route.js           # Create chat (FastAPI first, Supabase fallback)
+│  │     ├─ message/route.js          # Relay chat messages to backend
+│  │     └─ delete-all/route.js       # Delete all chats via backend
+│  ├─ layout.js                       # Root layout + Toaster + theme bootstrap script
+│  ├─ login/page.jsx                  # Supabase login form
+│  ├─ signup/page.jsx                 # Supabase signup form
+│  └─ globals.css                     # Tokens + global styles
 │
 ├─ components/
+│  ├─ Hero.jsx / Features.jsx / Footer.jsx   # Marketing sections
+│  ├─ LogoutButton.jsx
 │  ├─ auth/
-│  │  └─ UserProfile.jsx          # Avatar dropdown + logout form
+│  │  ├─ AuthModal.jsx
+│  │  ├─ LoginForm.jsx
+│  │  └─ SignupForm.jsx
+│  ├─ brand/
+│  │  ├─ Gradient.jsx
+│  │  ├─ Motion.jsx
+│  │  ├─ Surface.jsx
+│  │  └─ ThemeToggle.jsx
 │  ├─ chat/
-│  │  ├─ AIMessage.jsx            # AI response card (accordion, SQL, table)
-│  │  ├─ AILoading.jsx            # Animated “thinking” placeholder
-│  │  └─ ChatInterface.jsx        # Sticky input, scrollable history
+│  │  ├─ AIMessage.jsx
+│  │  ├─ AILoading.jsx
+│  │  ├─ ChatInterface.jsx
+│  │  ├─ ChatList.jsx
+│  │  ├─ ChatPageClient.jsx
+│  │  └─ NewChatButton.jsx
 │  ├─ connections/
-│  │  ├─ AddConnectionButton.jsx  # Form dialog (zod + RHF)
-│  │  └─ ConnectionList.jsx       # List + edit/delete + collapsed mode
+│  │  ├─ AddConnectionButton.jsx
+│  │  ├─ ConnectionList.jsx
+│  │  └─ SchemaViewer.jsx
 │  ├─ layout/
-│  │  └─ Sidebar.jsx              # Glass sidebar (header/content/footer)
-│  └─ ui/                         # shadcn-style wrappers
+│  │  ├─ ChatSidebar.jsx
+│  │  └─ Sidebar.jsx
+│  └─ ui/
+│     ├─ accordion.jsx
 │     ├─ avatar.jsx
 │     ├─ button.jsx
 │     ├─ card.jsx
 │     ├─ dialog.jsx
+│     ├─ dropdown-menu.jsx
 │     ├─ form.jsx
 │     ├─ input.jsx
 │     ├─ label.jsx
+│     ├─ radio-group.jsx
 │     └─ select.jsx
 │
 ├─ lib/
-│  ├─ supabase/client.js          # Browser client (createBrowserClient)
-│  ├─ supabase/server.js          # Server client (cookies + SSR)
-│  ├─ stores/connectionStore.js   # Zustand store: selectedConnection
-│  ├─ stores/chatStore.js         # Zustand store: chat state
-│  ├─ s3/upload.js                # S3 upload helper (server action)
-│  └─ utils.js                    # cn() helper
+│  ├─ supabase/client.js              # Browser client (createBrowserClient)
+│  ├─ supabase/server.js              # Server client (cookies + SSR)
+│  ├─ stores/chatStore.js             # Zustand store: chat state + persistence
+│  ├─ stores/connectionStore.js       # Zustand store: selected connection
+│  ├─ s3/upload.js                    # S3 upload helper for server actions
+│  └─ utils.js                        # cn() helper
 │
-├─ public/                        # Static assets
-├─ README.md                      # This file
+├─ public/                            # Static assets
+├─ README.md                          # This file
 └─ package.json
 ```
 
 ## Pages & Routing
 
-- `/login` and `/signup`: client components with shadcn Card/Input/Label/Button. Use Supabase auth, show errors inline; redirect to `/` on success.
-- `/` (home): server component. Checks `supabase.auth.getUser()` and redirects to `/login` if unauthenticated. Renders:
-  - Sticky glass header with app title (left) and user avatar menu (right).
-  - Glass sidebar (left) with collapsible layout and connection list.
-  - ChatInterface (right) filling remaining space.
-- `/api/query` (POST): Proxies to Python backend at `PYTHON_BACKEND_URL/api/query`.
-- `/api/chat/create` (POST): Tries Python backend first; falls back to direct Supabase insert.
-- `/api/chat/message` (POST): Proxies to Python backend `/api/chat/message`.
+- `/` (marketing): public route built with Hero/Features/Footer components, Plus Jakarta Sans font, and Suspense-wrapped `AuthModal` triggered via `?auth=login|signup`.
+- `/login` & `/signup`: client components using shadcn Card/Input/Label/Button; authenticate with Supabase and redirect to `/home` on success.
+- `/home`: server component in the `(app)` route group that enforces Supabase auth, renders dual glass sidebars, theme toggle, and `ChatInterface`.
+- `/chat/[id]`: server component that loads a specific chat + connections, then hydrates `ChatPageClient` for scoped chatting.
+- API routes under `app/api/`
+  - `POST /api/query` → forwards to `${PYTHON_BACKEND_URL}/api/query` with `{ question, connection_id }`.
+  - `POST /api/chat/create` → tries FastAPI first, falls back to Supabase insert, optionally binds `data_source_id`.
+  - `POST /api/chat/message` → proxies to `${PYTHON_BACKEND_URL}/api/chat/message`.
+  - `POST /api/chat/delete-all` → deletes chats via `${PYTHON_BACKEND_URL}/api/chat/delete_all`.
 
 ## Data Flow & Workflows
 
 - Authentication
-  - Client pages call `supabase.auth.*` using `lib/supabase_client.js`.
-  - Server pages/actions use `lib/supabase/server.js` to read cookies.
-  - Logout uses a server action and a form post (no client secrets).
+  - Root layout + route handlers use `lib/supabase/server.js`; unauthenticated requests to `/home` redirect to `/login`.
+  - Marketing page keeps `AuthModal` in Suspense so query-string changes instantly open login/signup.
+  - User dropdown relies on a server action (`app/actions/auth.js`) to sign out without exposing service keys.
 
 - Connections CRUD
-  - addConnection / updateConnection / deleteConnection are server actions returning `{ success, error? }`.
-  - Client components show toasts via Sonner and call `router.refresh()` on success.
-  - Add/Edit uses react-hook-form + zod; DB credentials are stringified as `db_details`.
+  - `AddConnectionButton` uses zod + react-hook-form; FormData is posted to server actions that invoke FastAPI `/api/connections`.
+  - CSV/Excel uploads stream to S3 via `lib/s3/upload.js` prior to backend schema discovery.
+  - Schema metadata (`schema_json`, `is_large`) returned by the backend is rendered inside `SchemaViewer` with expand/collapse helpers.
+  - Collapsed state for the data source sidebar persists in `localStorage` and hydrates on mount; refresh action calls `/api/connections/{id}/refresh`.
 
 - Chat
-  - User selects a connection (Zustand `selectedConnection`) and submits a question.
-  - Client POSTs to `/api/query` with `{ question, connection_id }` (or full connection if preferred).
-  - While waiting: show `<AILoading />` with rotating witty states.
-  - On response: render `<AIMessage />` with:
-    - Accordion (“Details”) for explanation + SQL (Copy icon)
-    - Data table (simple HTML table) if rows are present
-  - Messages area auto-scrolls to the bottom on updates.
+  - `ChatSidebar` fetches chats via Supabase client, displays TTL status, and persists collapsed state.
+  - `useChatStore` keeps `currentChatId` + messages; selecting a connection auto-creates a chat through `/api/chat/create` and stores the id in `localStorage`.
+  - `ChatInterface` normalises historical messages, handles Gemini `response_type` (`sql` vs `meta`), auto-titles chats, and scrolls to the latest message.
+  - Message sends call `/api/chat/message`, append user + assistant responses to Supabase, and show Sonner feedback on failures.
+  - Delete-all chats trigger the backend endpoint, reset local stores, clear `localStorage`, and broadcast `chat:refresh-list` for any listeners.
 
 ## UI System
 
-- shadcn-style wrappers (Radix under the hood) for Button, Dialog, Form, Select, Avatar, etc.
-- Tailwind 4 for utilities; glassmorphism (blur, alpha, ring, gradient) for header + sidebar.
-- Collapsed sidebar:
-  - Icon-only tiles (square) for connections.
-  - Edge-centered glass pill toggle handle.
-  - Footer hosts the “Add Connection” trigger (icon in collapsed mode).
+- shadcn-style wrappers (Radix under the hood) deliver consistent focus rings, disabled styles, and density across forms/dialogs/menus.
+- Tokens + themes: `globals.css` defines `--qr-*` variables for surfaces, borders, text, and shadows; `ThemeToggle` updates `data-theme` with pre-hydration inline script.
+- Glass surfaces: `Surface` component encapsulates glassmorphism treatments for sidebars, header, and marketing cards.
+- Dual sidebars: both `Sidebar` and `ChatSidebar` support icon-only collapsed modes with edge toggles and persisted state.
+- Schema viewer: accordion tree renders Supabase-provided `schema_json`, includes expand/collapse all, and shows column types as badges.
+- AI message cards: `AIMessage` displays explanation, copyable SQL, and tabular results; `AILoading` provides animated thinking states.
 
 ## Setup & Environment
 
@@ -161,21 +180,24 @@ npm run dev
 
 ## Conventions
 
-- Server actions return `{ success, error? }`; UI components show toasts and call `router.refresh()`.
-- Avoid browser scrolling; page is fixed height (`h-screen`). Only chat history and the connection list scroll.
-- Prefer shadcn wrappers for consistency; Radix primitives sit underneath.
-- Keep forms typed with zod + RHF; keep UI accessible (labels, `aria-pressed` on toggle buttons, etc.).
+- Server actions resolve to `{ success, error? }`; callers surface Sonner toasts and `router.refresh()` when needed.
+- Sidebar collapsed state and `currentChatId` persist in `localStorage`; helpers guard against SSR hydration mismatches.
+- Custom DOM events (`chat:refresh-list`) notify components to re-fetch chats after mutations.
+- Layout stays `h-screen`; only chat history and sidebar content scroll to maintain glassmorphism backdrop.
+- Always use shadcn wrappers + zod forms for inputs, setting accessible labels/aria attributes consistent with design tokens.
 
 ## Troubleshooting
 
 - Dropdowns not opening: ensure our dropdown wrapper renders `children` and that the Portal isn’t clipped; header/sidebar use `z-20+`.
-- Messages hidden under header: adjust ChatInterface top padding + `scroll-pt` to match header height.
-- Backend not configured: ensure `PYTHON_BACKEND_URL` is set; `/api/query` and `/api/chat/message` depend on it.
-- Chat not created: if backend create fails, route falls back to Supabase insert; verify `chats` table and RLS.
-- CORS/backend issues: verify `PYTHON_BACKEND_URL` and backend is reachable.
+- Messages hidden under header: adjust `ChatInterface` top padding + `scroll-pt` to match header height.
+- Connection creation failing: confirm `PYTHON_BACKEND_URL` is reachable and AWS/S3 env vars are populated for file sources.
+- Backend not configured: `/api/query`, `/api/chat/message`, and `/api/chat/delete-all` require `PYTHON_BACKEND_URL`.
+- Chat not created: if the backend returns an error we fall back to Supabase insert—check `chats` table RLS and that `data_source_id` is valid.
+- Theme mismatch flash: ensure the inline script in `app/layout.js` runs before hydration (no CSP blocking inline script).
 
 ## Roadmap (nice‑to‑have)
 
 - Streaming responses (SSE) for incremental AI answers.
-- Persist sidebar collapsed state and last selected connection.
-- Theming token pass for the glass palette.
+- Result visualizations (charts) layered on top of SQL responses.
+- Saved prompts / templates scoped per connection.
+- Connection health monitor + automated schema diff notifications.

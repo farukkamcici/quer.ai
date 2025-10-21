@@ -145,11 +145,11 @@ export default function AddConnectionButton({ connection = null, children = null
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {children ? children : <Button className="w-full">Add Connection</Button>}
+        {children ? children : <Button className="w-full">Add Source</Button>}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{connection ? 'Edit Connection' : 'Add Connection'}</DialogTitle>
+          <DialogTitle>{connection ? 'Edit Source' : 'Add Source'}</DialogTitle>
           <DialogDescription>{connection ? 'Update your database credentials.' : 'Enter your database credentials.'}</DialogDescription>
         </DialogHeader>
         <Form {...form}>
