@@ -12,7 +12,7 @@ import { createClient } from "@/lib/supabase/client";
 import { FadeIn } from "@/components/brand/Motion";
 
 export default function ChatInterface() {
-  const { currentChatId, currentMessages, addMessage, setMessages, setChatId, currentDataSourceId } = useChatStore();
+  const { currentChatId, currentMessages, addMessage, setMessages, setChatId, currentDataSourceId, setDataSource } = useChatStore();
   const { selectedConnection } = useConnectionStore();
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
@@ -43,7 +43,7 @@ export default function ChatInterface() {
         const supabase = createClient();
         const { data, error } = await supabase
           .from('chats')
-          .select('id,messages')
+          .select('id,messages,data_source_id')
           .eq('id', savedId)
           .single();
         if (error || !data) {
@@ -51,6 +51,7 @@ export default function ChatInterface() {
           localStorage.removeItem('currentChatId');
           setChatId(null);
           setMessages([]);
+          setDataSource(null);
           return;
         }
         const msgs = Array.isArray(data?.messages) ? data.messages : [];
@@ -69,8 +70,10 @@ export default function ChatInterface() {
         });
         setMessages(normalized);
         setChatId(savedId);
+        setDataSource(data?.data_source_id || null);
       } catch (e) {
         toast.error('Could not load chat.');
+        setDataSource(null);
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -90,6 +93,10 @@ export default function ChatInterface() {
       const dsId = currentDataSourceId || selectedConnection?.id;
       if (!dsId) return;
       try {
+        const persistedId = localStorage.getItem('currentChatId');
+        if (persistedId) return;
+      } catch {}
+      try {
         creatingRef.current = true;
         const res = await fetch('/api/chat/create', {
           method: 'POST',
@@ -100,6 +107,7 @@ export default function ChatInterface() {
         if (res.ok && data?.chat_id) {
           setMessages([]);
           setChatId(data.chat_id);
+          setDataSource(dsId);
           try { window.dispatchEvent(new CustomEvent('chat:refresh-list')); } catch {}
           trackAnalytics('chat_created', { chat_id: data.chat_id, source_id: dsId });
         } else {

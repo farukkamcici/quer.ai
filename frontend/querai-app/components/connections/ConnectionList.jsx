@@ -193,7 +193,10 @@ export default function ConnectionList({ connections = [], isCollapsed = false }
                     if (res?.success) {
                       toast.success('Connection deleted.');
                       router.refresh();
-                      if (selectedConnection?.id === c.id) setSelectedConnection(null);
+                      if (selectedConnection?.id === c.id) {
+                        setSelectedConnection(null);
+                        setDataSource(null);
+                      }
                     } else {
                       toast.error(res?.error || 'Failed to delete connection');
                     }

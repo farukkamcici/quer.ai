@@ -16,7 +16,7 @@ import {
 
 export default function ChatList({ isCollapsed = false }) {
   const [chats, setChats] = useState([]);
-  const { currentChatId, setChatId, setMessages } = useChatStore();
+  const { currentChatId, setChatId, setMessages, setDataSource } = useChatStore();
   const debounceRef = useRef(null);
   const selectTimerRef = useRef(null);
   useEffect(() => {
@@ -65,7 +65,7 @@ export default function ChatList({ isCollapsed = false }) {
     // Load messages for the selected chat into store
     const { data } = await supabase
       .from('chats')
-      .select('messages')
+      .select('messages,data_source_id')
       .eq('id', id)
       .single();
     const msgs = Array.isArray(data?.messages) ? data.messages : [];
@@ -84,6 +84,7 @@ export default function ChatList({ isCollapsed = false }) {
     });
     setMessages(normalized);
     setChatId(id);
+    setDataSource(data?.data_source_id || null);
   }
   function selectChat(id) {
     if (selectTimerRef.current) clearTimeout(selectTimerRef.current);

@@ -5,13 +5,15 @@ import AddConnectionButton from "@/components/connections/AddConnectionButton";
 import ConnectionList from "@/components/connections/ConnectionList";
 import SchemaViewer from "@/components/connections/SchemaViewer";
 import { useConnectionStore } from "@/lib/stores/connectionStore";
+import { useChatStore } from "@/lib/stores/chatStore";
 import { Plus, GripVertical } from "lucide-react";
 import { Surface } from "@/components/brand/Surface";
 
 export default function Sidebar({ connections = [], user = null }) {
   // Start expanded to match SSR; hydrate to saved value after mount
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { selectedConnection } = useConnectionStore();
+  const { selectedConnection, setSelectedConnection, clearSelectedConnection } = useConnectionStore();
+  const { currentDataSourceId } = useChatStore();
 
   useEffect(() => {
     try {
@@ -25,6 +27,32 @@ export default function Sidebar({ connections = [], user = null }) {
       localStorage.setItem('sidebar:dataSources:collapsed', isCollapsed ? '1' : '0');
     } catch {}
   }, [isCollapsed]);
+
+  useEffect(() => {
+    if (!Array.isArray(connections) || connections.length === 0) {
+      if (selectedConnection) {
+        clearSelectedConnection();
+      }
+      return;
+    }
+
+    if (currentDataSourceId) {
+      const match = connections.find((c) => c.id === currentDataSourceId);
+      if (match) {
+        if (selectedConnection !== match) {
+          setSelectedConnection(match);
+        }
+        return;
+      }
+    }
+
+    if (
+      selectedConnection &&
+      !connections.some((c) => c.id === selectedConnection.id)
+    ) {
+      clearSelectedConnection();
+    }
+  }, [connections, currentDataSourceId, selectedConnection, setSelectedConnection, clearSelectedConnection]);
 
   return (
     <aside
